@@ -22,7 +22,7 @@ class Review(models.Model):
         super(Review, self).save(*args, **kwargs)
 
         book = self.books
-        reviews = Review.objects.filter(book=book)
+        reviews = Review.objects.filter(books_id=book)
         total_rating = sum([review.grade for review in reviews if review.grade is not None])
         num_reviews = len(reviews)
 
@@ -32,3 +32,6 @@ class Review(models.Model):
             book.rating = 0
 
         book.save()
+
+    def __str__(self):
+        return f"Review by {self.author} ob {self.books}"

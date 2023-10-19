@@ -23,12 +23,13 @@ class ReviewCreateAPIView(CreateAPIView):
         serializer = ReviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.validated_data["author"] = request.user
+        book = serializer.validated_data["books"]
 
         review = serializer.save()
 
-        for book in review.books.all():
-            book.reviews += 1
-            book.save()
+        # for book in review.books.all():
+        book.reviews += 1
+        book.save()
 
         return Response(serializer.data, status=HTTP_201_CREATED)
 

@@ -18,10 +18,15 @@ class OrderCreateAPIView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.validated_data["owner"] = request.user
 
+        if not serializer.validated_data["isPossibleToOrder"]:
+            return Response({"message" : "К сожалению вы не можете заюроинровать эту книгу на данный момент"})
+
+
         order = serializer.save()
 
         for book in order.books.all():
             book.orders += 1
+            book.quantity -= 1
             book.save()
 
         return Response(serializer.data, status=HTTP_201_CREATED)

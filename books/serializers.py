@@ -5,6 +5,7 @@ from .models import Book, Category
 class BookSerializer(serializers.ModelSerializer):
     rating = serializers.ReadOnlyField()
     orders = serializers.ReadOnlyField()
+    reviews = serializers.ReadOnlyField()
 
     class Meta:
         model = Book

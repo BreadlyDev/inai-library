@@ -29,6 +29,15 @@ class BooksCreateAPIView(CreateAPIView):
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated, IsLibrarian]
 
+    def create(self, request, *args, **kwargs):
+        serializer = BookSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        isPossibleToOrder = serializer.validated_data["isPossibleToOrder"]
+        if serializer.validated_data["quantity"] == 0:
+            isPossibleToOrder = False
+
+        serializer.save()
+
 
 class BooksListAPIView(ListAPIView):
     queryset = Book.objects.all()

@@ -1,5 +1,6 @@
 from django.db import models
 from main.settings import IMAGE_FOLDER, MEDIA_ROOT
+from rest_framework.exceptions import ValidationError
 
 
 class Category(models.Model):
@@ -10,10 +11,14 @@ class Category(models.Model):
 
 
 class Book(models.Model):
+    def quantity_validator(self, request):
+        if self.quantity < 0:
+            raise ValidationError("Quantity must be a positive integer.")
+
     author = models.CharField(max_length=150)
     title = models.CharField(max_length=150)
     description = models.TextField(default="", blank=True)
-    image = models.ImageField(default=MEDIA_ROOT+"not_found_404_image/Error404img.png", upload_to=IMAGE_FOLDER)
+    image = models.ImageField(default=MEDIA_ROOT+"error_404/Error404img.png", upload_to=IMAGE_FOLDER)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     quantity = models.IntegerField()
     isPossibleToOrder = models.BooleanField(default=True)

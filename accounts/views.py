@@ -1,4 +1,6 @@
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .serializers import UserSerializer, LoginSerializer
 from .models import User
 from rest_framework.views import APIView
@@ -39,7 +41,18 @@ class UserRegisterAPIView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         login(request, user)
-        return Response({'message': 'User registered successfully'}, status=HTTP_201_CREATED)
+
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        print(f'{access_token}  \n {refresh_token}')
+
+
+
+        return Response({'message': 'User registered successfully',
+                        'access_token': access_token,
+                        'refresh_token': refresh_token},
+                        status=HTTP_201_CREATED)
 
 
 class UserLoginAPIView(APIView):
@@ -61,7 +74,16 @@ class UserLoginAPIView(APIView):
             return Response({'error': 'Invalid password'}, status=400)
 
         login(request, user)
-        return Response({'message': 'User logged in successfully'}, status=HTTP_200_OK)
+        print("login")
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        print(f'{access_token}  \n {refresh_token}')
+
+        return Response({'message': 'User logged in successfully',
+                         'access_token': access_token,
+                         'refresh_token': refresh_token
+                         }, status=HTTP_200_OK)
 
 
 class UserLogoutAPIView(APIView):
