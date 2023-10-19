@@ -1,6 +1,5 @@
 from django.db import models
 from main.settings import IMAGE_FOLDER, MEDIA_ROOT
-from rest_framework.exceptions import ValidationError
 
 
 class Category(models.Model):
@@ -11,9 +10,6 @@ class Category(models.Model):
 
 
 class Book(models.Model):
-    def quantity_validator(self, request):
-        if self.quantity < 0:
-            raise ValidationError("Quantity must be a positive integer.")
 
     author = models.CharField(max_length=150)
     title = models.CharField(max_length=150)

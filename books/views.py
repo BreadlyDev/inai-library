@@ -32,10 +32,10 @@ class BooksCreateAPIView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = BookSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        isPossibleToOrder = serializer.validated_data["isPossibleToOrder"]
         if serializer.validated_data["quantity"] == 0:
-            isPossibleToOrder = False
-
+            serializer.validated_data["isPossibleToOrder"] = False
+        if serializer.validated_data["quantity"] <= 0:
+            raise ValueError("Количество книг не может быть отрицательным")
         serializer.save()
 
 

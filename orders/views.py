@@ -17,10 +17,13 @@ class OrderCreateAPIView(CreateAPIView):
         serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.validated_data["owner"] = request.user
+        books = serializer.validated_data["books"]
 
-        if not serializer.validated_data["isPossibleToOrder"]:
-            return Response({"message" : "К сожалению вы не можете заюроинровать эту книгу на данный момент"})
-
+        for book in books:
+            if book.quantity <= 0:
+                book.isPossibleToOrder = False
+            if not book.isPossibleToOrder:
+                return Response({"message": "К сожалению вы не можете забронировать эту книгу на данный момент"})
 
         order = serializer.save()
 

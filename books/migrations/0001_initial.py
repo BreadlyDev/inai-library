@@ -33,6 +33,7 @@ class Migration(migrations.Migration):
                 ('orders', models.IntegerField(default=0)),
                 ('created_time', models.DateTimeField(auto_now_add=True)),
                 ('category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='books.category')),
+                ('reviews', models.IntegerField(default=0)),
             ],
         ),
     ]
