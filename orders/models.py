@@ -30,5 +30,9 @@ class Order(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
     due_time = models.DateTimeField(validators=[validate_due_date])
 
+    class Meta:
+        ordering = ["-created_time"]
+        db_table = "orders"
+
     def __str__(self):
         return f"Order by {self.owner} at {self.created_time}"

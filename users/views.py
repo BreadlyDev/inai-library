@@ -1,10 +1,11 @@
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny
-from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.views import APIView
 from django.contrib.auth import logout
+from .permissions import NotStudentPermission
 from .serializers import UserSerializer, LoginSerializer
 from .models import User
 
@@ -70,4 +71,12 @@ class UserLogoutAPIView(APIView):
     @classmethod
     def post(request):
         logout(request)
-        return Response({'message': 'User logged out successfully'}, status=HTTP_200_OK)
+        return Response(
+            {'message': 'User logged out successfully'}, status=HTTP_200_OK
+        )
+
+
+class UserListAPIView(ListAPIView):
+    queryset = User.objects.filter(is_superuser=False)
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, NotStudentPermission]

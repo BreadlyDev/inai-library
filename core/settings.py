@@ -11,10 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
-import environ
-
-env = environ.Env()
-environ.Env.read_env()
+import os
 
 SECRET_KEY="django-insecure-728k0bs%91o$^sp%aa_ji@2fmtwpdk7r1na#*$%l2+%)7tnpo3"
 
@@ -158,8 +155,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-MEDIA_ROOT = "../media/"
-IMAGE_FOLDER = MEDIA_ROOT + "books/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+IMAGE_FOLDER = os.path.join(MEDIA_ROOT, "books")
+ERROR_404_IMAGE_FOLDER = os.path.join(MEDIA_ROOT, "error_404")
 STATIC_URL = 'static/'
 
 # Default primary key field type

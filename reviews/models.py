@@ -13,6 +13,10 @@ class Review(models.Model):
     grade = models.IntegerField(choices=GRADES, null=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_time"]
+        db_table = "reviews"
+
     def save(self, *args, **kwargs):
         super(Review, self).save(*args, **kwargs)
 

@@ -19,3 +19,8 @@ class IsStudent(BasePermission):
 class IsLibrarianOrStudent(BasePermission):
     def has_permission(self, request, view):
         return request.user.status == "Student" or "Librarian"
+
+
+class NotStudentPermission(BasePermission):
+    def has_permission(self, request, view):
+        return not request.user == "Student"

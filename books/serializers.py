@@ -6,6 +6,7 @@ class BookSerializer(serializers.ModelSerializer):
     rating = serializers.ReadOnlyField()
     orders = serializers.ReadOnlyField()
     reviews = serializers.ReadOnlyField()
+    isPossibleToOrder = serializers.BooleanField(read_only=True, default=True)
 
     class Meta:
         model = Book

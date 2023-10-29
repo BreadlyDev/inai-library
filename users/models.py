@@ -12,12 +12,12 @@ USER_STATUS = (
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError('Email is required field')
+            raise ValueError("Email is required field")
         email = self.normalize_email(email)
-        status = extra_fields.get('status', 'Student')
+        status = extra_fields.get("status", "Student")
 
         if status not in dict(USER_STATUS).keys():
-            raise ValueError('Invalid user status')
+            raise ValueError("Invalid user status")
 
         user = self.model(email=email, **extra_fields)
         user.status = status
@@ -26,9 +26,9 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        extra_fields['status'] = 'Admin'
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields["status"] = "Admin"
 
         return self.create_user(email, password, **extra_fields)
 
@@ -62,5 +62,9 @@ class User(AbstractUser):
         help_text='Specific permissions for this user.',
         verbose_name='user permissions',
     )
+
+    class Meta:
+        ordering = ["-date_joined"]
+        db_table = "users"
 
     objects = CustomUserManager()
