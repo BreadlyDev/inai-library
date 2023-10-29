@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import User
+from users.models import User
 
 
 class Message(models.Model):
@@ -10,4 +10,4 @@ class Message(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message from {self.author} to {self.recipient}"
+        return f"Message by {self.author} to {self.recipient}"

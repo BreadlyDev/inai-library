@@ -1,11 +1,10 @@
 from rest_framework.response import Response
-from .models import Order
-from .serializers import OrderSerializer
-from accounts.permissions import IsStudent, IsLibrarianOrStudent
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
-
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_204_NO_CONTENT, HTTP_201_CREATED
+from users.permissions import IsStudent, IsLibrarianOrStudent
+from .models import Order
+from .serializers import OrderSerializer
 
 
 class OrderCreateAPIView(CreateAPIView):
@@ -13,7 +12,7 @@ class OrderCreateAPIView(CreateAPIView):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsStudent]
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.validated_data["owner"] = request.user
@@ -49,39 +48,39 @@ class OrderListAPIView(ListAPIView):
         return Order.objects.all()
 
 
-class OrderChangeAPIView(RetrieveUpdateDestroyAPIView):
+class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsLibrarianOrStudent]
 
-    def update(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         order = self.get_object()
 
-        if(
+        if (
                 request.user.status == "Student"
                 and order.status == "Не рассмотрено"
                 and order.owner == request.user
         ):
-            return super().update(request, *args, **kwargs)
-        else:
-            return Response(
+            return super().put(request, *args, **kwargs)
+
+        return Response(
                 {'message': 'У вас нет разрешения на изменение этого заказа'},
                 status=HTTP_403_FORBIDDEN,
-            )
+        )
 
     def delete(self, request, *args, **kwargs):
         order = self.get_object()
 
-        if(
-                request.user.status == "Student"
-                and order.status == "Не рассмотрено"
-                and order.owner == request.user
+        if (
+            request.user.status == "Student"
+            and order.status == "Не рассмотрено"
+            and order.owner == request.user
         ):
             order.delete()
             return Response(
                 {'message': 'Заказ удален успешно'}, status=HTTP_204_NO_CONTENT
             )
-        else:
-            return Response(
+
+        return Response(
                 {'message': 'У вас нет разрешения на удаление этого заказа'}, status=HTTP_403_FORBIDDEN
-            )
+        )

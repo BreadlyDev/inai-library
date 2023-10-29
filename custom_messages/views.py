@@ -1,11 +1,10 @@
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_403_FORBIDDEN
-
+from rest_framework.permissions import IsAuthenticated
+from users.permissions import IsLibrarian, IsLibrarianOrStudent
 from .models import Message
 from .serializers import MessageSerializer
-from accounts.permissions import IsLibrarian, IsLibrarianOrStudent
-from rest_framework.permissions import IsAuthenticated
 
 
 class MessageListAPIView(ListAPIView):
@@ -18,8 +17,7 @@ class MessageListAPIView(ListAPIView):
 
         if user.status == "Student":
             return Message.objects.filter(recipient=user)
-        else:
-            return Message.objects.all()
+        return Message.objects.all()
 
 
 class MessageCreateAPIView(CreateAPIView):
@@ -27,7 +25,7 @@ class MessageCreateAPIView(CreateAPIView):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated, IsLibrarian]
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = MessageSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.validated_data["author"] = request.user
@@ -42,8 +40,7 @@ class MessageCreateAPIView(CreateAPIView):
         )
 
 
-class MessageChangeAPIView(RetrieveUpdateDestroyAPIView):
+class MessageRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated, IsLibrarian]
-

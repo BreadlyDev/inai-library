@@ -1,17 +1,12 @@
 from django.db import models
 from books.models import Book
-from accounts.models import User
-
-GRADES = (
-    (1, 1),
-    (2, 2),
-    (3, 3),
-    (4, 4),
-    (5, 5)
-)
+from users.models import User
 
 
 class Review(models.Model):
+    GRADES = (
+        (1, 1), (2, 2), (3, 3), (4, 4), (5, 5)
+    )
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     text = models.TextField(default="", blank=True)
@@ -34,4 +29,4 @@ class Review(models.Model):
         book.save()
 
     def __str__(self):
-        return f"Review by {self.author} on {self.books} book"
+        return f"Review by {self.author} on {self.book} book"

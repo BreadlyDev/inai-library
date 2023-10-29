@@ -1,9 +1,10 @@
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
 from django.db.models import Q
+from users.permissions import IsLibrarian
 from .models import Book, Category
 from .serializers import BookSerializer, CategorySerializer
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from accounts.permissions import IsLibrarian
 
 
 class CategoriesCreateAPIView(CreateAPIView):
@@ -18,7 +19,7 @@ class CategoriesListAPIView(ListAPIView):
     permission_classes = [AllowAny]
 
 
-class CategoriesChangeAPIView(RetrieveUpdateDestroyAPIView):
+class CategoriesRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated, IsLibrarian]
@@ -29,7 +30,7 @@ class BooksCreateAPIView(CreateAPIView):
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated, IsLibrarian]
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = BookSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         if serializer.validated_data["quantity"] == 0:
@@ -37,6 +38,7 @@ class BooksCreateAPIView(CreateAPIView):
         if serializer.validated_data["quantity"] <= 0:
             raise ValueError("Количество книг не может быть отрицательным")
         serializer.save()
+        return Response({"message": "Книга успешно добавлена"})
 
 
 class BooksListAPIView(ListAPIView):
@@ -71,7 +73,7 @@ class BooksListAPIView(ListAPIView):
         return super().get(request)
 
 
-class BooksChangeAPIView(RetrieveUpdateDestroyAPIView):
+class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated, IsLibrarian]

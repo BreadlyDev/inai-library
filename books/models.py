@@ -1,5 +1,5 @@
 from django.db import models
-from main.settings import IMAGE_FOLDER, MEDIA_ROOT
+from core.settings import IMAGE_FOLDER, MEDIA_ROOT
 
 
 class Category(models.Model):
@@ -10,7 +10,6 @@ class Category(models.Model):
 
 
 class Book(models.Model):
-
     author = models.CharField(max_length=150)
     title = models.CharField(max_length=150)
     description = models.TextField(default="", blank=True)

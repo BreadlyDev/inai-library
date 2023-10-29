@@ -1,9 +1,9 @@
 from django.db import models
-from accounts.models import User
-from books.models import Book
 from django.core.validators import ValidationError
 from django.utils import timezone
 from datetime import timedelta
+from users.models import User
+from books.models import Book
 
 
 def validate_due_date(value):
@@ -29,3 +29,6 @@ class Order(models.Model):
     comment = models.TextField(default="", blank=True)
     created_time = models.DateTimeField(auto_now_add=True)
     due_time = models.DateTimeField(validators=[validate_due_date])
+
+    def __str__(self):
+        return f"Order by {self.owner} at {self.created_time}"
