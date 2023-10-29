@@ -9,6 +9,12 @@ USER_STATUS = (
 )
 
 
+def validate_phone(phone):
+    if phone[:1].isdigit() and 8 < len(phone) < 10:
+        return True
+    return False
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -40,7 +46,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=150, default="", blank=True)
     last_name = models.CharField(max_length=150, default="", blank=True)
     email = models.EmailField(unique=True, null=True)
-    phone = models.CharField(max_length=150, default="", blank=True)
+    phone = models.CharField(max_length=150, default="", blank=True, validators=[validate_phone])
     status = models.CharField(max_length=150, choices=USER_STATUS, default=USER_STATUS[2][0])
     date_joined = models.DateTimeField(auto_now_add=True)
 

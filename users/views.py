@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import CreateAPIView, ListAPIView
-from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
+from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from django.contrib.auth import logout
 from .permissions import NotStudentPermission
@@ -17,6 +17,11 @@ class UserRegisterAPIView(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         data = request.data
+
+        if not data["phone"][1:].isdigit() \
+                or not 8 < len(data["phone"]) < 14:
+            return Response({"message": "Неверный номер телефона"}, status=HTTP_400_BAD_REQUEST)
+
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
