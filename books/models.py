@@ -1,6 +1,4 @@
 from django.db import models
-from django.db.models.signals import pre_save, pre_delete
-from django.dispatch import receiver
 from core.settings import IMAGE_FOLDER, ERROR_404_IMAGE_FOLDER
 
 
