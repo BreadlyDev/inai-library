@@ -44,7 +44,7 @@ class BooksCreateAPIView(CreateAPIView):
         serializer.save()
 
         return Response(
-            {"message": "Книга успешно добавлена"} , status=HTTP_201_CREATED
+            {"message": "Книга успешно добавлена"}, status=HTTP_201_CREATED
         )
 
 
