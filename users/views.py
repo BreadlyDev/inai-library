@@ -73,12 +73,19 @@ class UserLoginAPIView(APIView):
 
 
 class UserLogoutAPIView(APIView):
+
     @classmethod
-    def post(request):
-        logout(request)
-        return Response(
-            {'message': 'User logged out successfully'}, status=HTTP_200_OK
-        )
+    def post(cls, request):
+        refresh_token = request.data.get('refresh_token')
+
+        if not refresh_token:
+            return Response({'detail': "Отсутствует Refresh токен"}, status=HTTP_400_BAD_REQUEST)
+
+        try:
+            RefreshToken(refresh_token).blacklist()
+            return Response({'detail': 'Пользователь успещно вышел из системы.'}, status=HTTP_200_OK)
+        except Exception:
+            return Response({'detail': 'Неверный токен или токен просрочен.'}, status=HTTP_400_BAD_REQUEST)
 
 
 class UserListAPIView(ListAPIView):

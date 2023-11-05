@@ -48,7 +48,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, null=True)
     phone = models.CharField(max_length=150, default="", blank=True, validators=[validate_phone])
     status = models.CharField(max_length=150, choices=USER_STATUS, default=USER_STATUS[2][0])
-    date_joined = models.DateTimeField(auto_now_add=True)
+    date_joined = None
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -70,7 +70,6 @@ class User(AbstractUser):
     )
 
     class Meta:
-        ordering = ["-date_joined"]
         db_table = "users"
 
     objects = CustomUserManager()

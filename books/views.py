@@ -1,7 +1,7 @@
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_201_CREATED
+from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from users.permissions import IsLibrarian
@@ -130,4 +130,4 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         if book.image and book.image.path != ERROR_404_IMAGE_FOLDER:
             default_storage.delete(book.image.path)
         book.delete()
-        return Response({"message": "Книга успешно удалена"})
+        return Response({"message": "Книга успешно удалена"}, status=HTTP_200_OK)
