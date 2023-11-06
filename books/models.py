@@ -17,7 +17,7 @@ class Book(models.Model):
     title = models.CharField(max_length=150)
     description = models.TextField(default="", blank=True)
     image = models.ImageField(default=ERROR_404_IMAGE_FOLDER, upload_to=IMAGE_FOLDER)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     isPossibleToOrder = models.BooleanField(default=True)
     rating = models.FloatField(default=0)
