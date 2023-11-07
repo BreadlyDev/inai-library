@@ -53,10 +53,10 @@ class UserLoginAPIView(APIView):
         user = User.objects.filter(email=email).first()
 
         if user is None:
-            return Response({'error': 'User not found'}, status=400)
+            return Response({'message': 'User not found'}, status=400)
 
         if not user.check_password(password):
-            return Response({'error': 'Invalid password'}, status=400)
+            return Response({'message': 'Invalid password'}, status=400)
 
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
@@ -79,13 +79,13 @@ class UserLogoutAPIView(APIView):
         refresh_token = request.data.get('refresh_token')
 
         if not refresh_token:
-            return Response({'detail': "Отсутствует Refresh токен"}, status=HTTP_400_BAD_REQUEST)
+            return Response({'message': "Отсутствует Refresh токен"}, status=HTTP_400_BAD_REQUEST)
 
         try:
             RefreshToken(refresh_token).blacklist()
-            return Response({'detail': 'Пользователь успещно вышел из системы.'}, status=HTTP_200_OK)
+            return Response({'message': 'Пользователь успещно вышел из системы.'}, status=HTTP_200_OK)
         except Exception:
-            return Response({'detail': 'Неверный токен или токен просрочен.'}, status=HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Неверный токен или токен просрочен.'}, status=HTTP_400_BAD_REQUEST)
 
 
 class UserListAPIView(ListAPIView):

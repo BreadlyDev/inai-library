@@ -154,10 +154,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-IMAGE_FOLDER = os.path.join(MEDIA_ROOT, "books")
-ERROR_404_IMAGE_FOLDER = os.path.join(MEDIA_ROOT, "error_404")
-STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = "media/"
+IMAGE_FOLDER = "books"
+ERROR_404_IMAGE = "error_404/Error404img.png"
+
+STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

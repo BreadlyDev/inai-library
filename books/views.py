@@ -5,7 +5,7 @@ from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_2
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from users.permissions import IsLibrarian
-from core.settings import ERROR_404_IMAGE_FOLDER
+from core.settings import ERROR_404_IMAGE
 from .models import Book, Category
 from .serializers import BookSerializer, CategorySerializer
 
@@ -61,12 +61,9 @@ class BooksListAPIView(ListAPIView):
         title = request.GET.get("title")
 
         for book in self.get_queryset().all():
-            image_path = book.image.name
-            if default_storage.exists(image_path):
-                default_storage.url(image_path)
-                continue
-            book.image = ERROR_404_IMAGE_FOLDER
-            book.save()
+            if not book.image:
+                book.image = ERROR_404_IMAGE
+                book.save()
 
         if category:
             category = category.capitalize()
@@ -99,7 +96,7 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         if default_storage.exists(image_path):
             default_storage.url(image_path)
             return super().get(request, *args, **kwargs)
-        book.image = ERROR_404_IMAGE_FOLDER
+        book.image = ERROR_404_IMAGE
         book.save()
         return super().get(request, *args, **kwargs)
 
@@ -113,7 +110,7 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
             return Response({"message": "Книга не найдена"}, status=HTTP_404_NOT_FOUND)
 
         if book.image != request.data["image"] \
-                and book.image.path != ERROR_404_IMAGE_FOLDER:
+                and book.image.path != ERROR_404_IMAGE:
             default_storage.delete(book.image.path)
 
         return Response({"message": "Книга успешно изменена"})
@@ -127,7 +124,7 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         if not book:
             return Response({"message": "Книга не найдена"}, status=HTTP_404_NOT_FOUND)
 
-        if book.image and book.image.path != ERROR_404_IMAGE_FOLDER:
+        if book.image and book.image.path != ERROR_404_IMAGE:
             default_storage.delete(book.image.path)
         book.delete()
         return Response({"message": "Книга успешно удалена"}, status=HTTP_200_OK)

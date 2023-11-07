@@ -1,5 +1,5 @@
 from django.db import models
-from core.settings import IMAGE_FOLDER, ERROR_404_IMAGE_FOLDER
+from core.settings import IMAGE_FOLDER, ERROR_404_IMAGE
 
 
 class Category(models.Model):
@@ -16,7 +16,7 @@ class Book(models.Model):
     author = models.CharField(max_length=150)
     title = models.CharField(max_length=150)
     description = models.TextField(default="", blank=True)
-    image = models.ImageField(default=ERROR_404_IMAGE_FOLDER, upload_to=IMAGE_FOLDER)
+    image = models.ImageField(default=ERROR_404_IMAGE, upload_to=IMAGE_FOLDER)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     isPossibleToOrder = models.BooleanField(default=True)
@@ -30,4 +30,4 @@ class Book(models.Model):
         db_table = "books"
 
     def __str__(self):
-        return self.title
+        return f"{self.title} book with id = {self.id}"
