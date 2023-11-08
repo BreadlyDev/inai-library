@@ -15,6 +15,16 @@ def validate_phone(phone):
     return False
 
 
+class Group(models.Model):
+    name = models.CharField(max_length=150)
+
+    class Meta:
+        db_table = "groups"
+
+    def __str__(self):
+        return f"{self.name} group"
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -48,6 +58,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, null=True)
     phone = models.CharField(max_length=150, default="", blank=True, validators=[validate_phone])
     status = models.CharField(max_length=150, choices=USER_STATUS, default=USER_STATUS[2][0])
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
     date_joined = None
 
     USERNAME_FIELD = 'email'
