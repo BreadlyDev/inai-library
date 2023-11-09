@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (UserRegisterAPIView, UserLoginAPIView, UserLogoutAPIView, UserListAPIView, UserGetAPIView,
                     GroupCreateAPIView, GroupChangeAPIView)
 
@@ -10,4 +11,5 @@ urlpatterns = [
     path('list/user/', UserListAPIView.as_view()),
     path('create/group/', GroupCreateAPIView.as_view()),
     path('change/group/', GroupChangeAPIView.as_view()),
+    path('activate/refresh/token/', TokenRefreshView.as_view()),
 ]
