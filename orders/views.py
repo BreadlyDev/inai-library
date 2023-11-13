@@ -4,16 +4,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_204_NO_CONTENT, HTTP_201_CREATED
 from users.permissions import IsStudent, IsLibrarianOrStudent
 from .models import Order
-from .serializers import OrderSerializer
+from .serializers import OrderCreateSerializer, OrderSerializer
 
 
 class OrderCreateAPIView(CreateAPIView):
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
+    serializer_class = OrderCreateSerializer
     permission_classes = [IsAuthenticated, IsStudent]
 
     def post(self, request, *args, **kwargs):
-        serializer = OrderSerializer(data=request.data)
+        serializer = OrderCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.validated_data["owner"] = request.user
         books = serializer.validated_data["books"]
@@ -50,8 +50,12 @@ class OrderListAPIView(ListAPIView):
 
 class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
+    serializer_class = OrderCreateSerializer
     permission_classes = [IsAuthenticated, IsLibrarianOrStudent]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return OrderSerializer
 
     def put(self, request, *args, **kwargs):
         order = self.get_object()

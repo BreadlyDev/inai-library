@@ -12,7 +12,7 @@ from .models import User, Group
 class UserRegisterAPIView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -43,7 +43,7 @@ class UserRegisterAPIView(CreateAPIView):
 class UserLoginAPIView(APIView):
     queryset = User.objects.all()
     serializer_class = LoginSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = [AllowAny]
 
     @staticmethod
     def post(request):
