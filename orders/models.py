@@ -28,7 +28,7 @@ class Order(models.Model):
     status = models.CharField(max_length=50, choices=ORDER_STATUS, default=ORDER_STATUS[0][0])
     comment = models.TextField(default="", blank=True)
     created_time = models.DateTimeField(auto_now_add=True)
-    due_time = models.DateTimeField(validators=[validate_due_date])
+    due_time = models.DateTimeField(validators=[validate_due_date], null=True)
 
     class Meta:
         ordering = ["-created_time"]

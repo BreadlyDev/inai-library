@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_204_NO_CONTENT, HTTP_201_CREATED
 from users.permissions import IsStudent, IsLibrarianOrStudent
 from .models import Order
-from .serializers import OrderSerializer
+from .serializers import OrderSerializer, LibrarianOrderSerializer
 
 
 class OrderCreateAPIView(CreateAPIView):
@@ -56,6 +56,10 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     def put(self, request, *args, **kwargs):
         order = self.get_object()
 
+        def get_serializer_class(self):
+            if self.request.user.status == "Librarian":
+                return LibrarianOrderSerializer
+
         if (
                 request.user.status == "Student"
                 and order.status == "Не рассмотрено"
@@ -63,8 +67,11 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         ):
             return super().put(request, *args, **kwargs)
 
+        if request.user.status == "Librarian":
+            return super().put(request, *args, **kwargs)
+
         return Response(
-                {'message': 'У вас нет разрешения на изменение этого заказа'},
+                {"message": "У вас нет разрешения на изменение этого заказа"},
                 status=HTTP_403_FORBIDDEN,
         )
 
@@ -78,9 +85,18 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         ):
             order.delete()
             return Response(
-                {'message': 'Заказ удален успешно'}, status=HTTP_204_NO_CONTENT
+                {"message": "Заказ удален успешно"}, status=HTTP_204_NO_CONTENT
+            )
+
+        if (
+            request.user.status == "Librarian"
+            and order.status == "Готово"
+        ):
+            order.delete()
+            return Response(
+                {"message": "Заказ удален успешно"}, status=HTTP_204_NO_CONTENT
             )
 
         return Response(
-                {'message': 'У вас нет разрешения на удаление этого заказа'}, status=HTTP_403_FORBIDDEN
+                {"message": "У вас нет разрешения на удаление этого заказа"}, status=HTTP_403_FORBIDDEN
         )
