@@ -3,7 +3,7 @@ from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDe
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_204_NO_CONTENT, HTTP_201_CREATED
 from users.permissions import IsStudent, IsLibrarianOrStudent
-from .models import Order
+from .models import Order, ORDER_STATUS
 from .serializers import OrderSerializer, LibrarianOrderSerializer
 
 
@@ -56,32 +56,32 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     def put(self, request, *args, **kwargs):
         order = self.get_object()
 
-        def get_serializer_class(self):
-            if self.request.user.status == "Librarian":
-                return LibrarianOrderSerializer
+        if order.status not in [status[0] for status in ORDER_STATUS]:
+            return Response({"error": "Неверный статус заказа"})
 
         if (
                 request.user.status == "Student"
-                and order.status == "Не рассмотрено"
+                and order.status == ORDER_STATUS[0][1]
                 and order.owner == request.user
         ):
             return super().put(request, *args, **kwargs)
 
         if request.user.status == "Librarian":
+            self.serializer_class = LibrarianOrderSerializer
             return super().put(request, *args, **kwargs)
 
         return Response(
-                {"message": "У вас нет разрешения на изменение этого заказа"},
-                status=HTTP_403_FORBIDDEN,
+            {"message": "У вас нет разрешения на изменение этого заказа"},
+            status=HTTP_403_FORBIDDEN,
         )
 
     def delete(self, request, *args, **kwargs):
         order = self.get_object()
 
         if (
-            request.user.status == "Student"
-            and order.status == "Не рассмотрено"
-            and order.owner == request.user
+                request.user.status == "Student"
+                and order.status == ORDER_STATUS[0][1]
+                and order.owner == request.user
         ):
             order.delete()
             return Response(
@@ -89,8 +89,8 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             )
 
         if (
-            request.user.status == "Librarian"
-            and order.status == "Готово"
+                request.user.status == "Librarian"
+                and order.status == ORDER_STATUS[2][1]
         ):
             order.delete()
             return Response(
@@ -98,5 +98,5 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             )
 
         return Response(
-                {"message": "У вас нет разрешения на удаление этого заказа"}, status=HTTP_403_FORBIDDEN
+            {"message": "У вас нет разрешения на удаление этого заказа"}, status=HTTP_403_FORBIDDEN
         )
