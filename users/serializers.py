@@ -12,15 +12,20 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User(
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            phone=validated_data['phone'],
-            group=validated_data['group']
+            email=validated_data["email"],
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
+            phone=validated_data["phone"],
+            group=validated_data["group"]
         )
-        user.set_password(validated_data['password'])
+        user.set_password(validated_data["password"])
         user.save()
         return user
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["group"] = instance.group.name if instance.group else None
+        return representation
 
 
 class LoginSerializer(serializers.ModelSerializer):

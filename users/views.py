@@ -102,7 +102,7 @@ class UserGetAPIView(APIView):
     @classmethod
     def get(cls, request):
         user = request.user
-        serialized_user = UserSerializer(user)
+        serialized_user = UserSerializer(user).to_representation(user)
         return Response(serialized_user.data)
 
 
