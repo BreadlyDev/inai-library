@@ -7,6 +7,11 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ("id", "owner", "books", "status", "comment", "due_time", "created_time")
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["owner"] = instance.owner.email if instance.owner else None
+        return representation
+
 
 class LibrarianOrderSerializer(serializers.ModelSerializer):
 
