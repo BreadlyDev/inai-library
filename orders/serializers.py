@@ -3,6 +3,8 @@ from .models import Order
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField()
+
     class Meta:
         model = Order
         fields = ("id", "owner", "books", "status", "comment", "due_time", "created_time")

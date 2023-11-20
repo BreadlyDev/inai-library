@@ -58,7 +58,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, null=True)
     phone = models.CharField(max_length=150, default="", blank=True, validators=[validate_phone])
     status = models.CharField(max_length=150, choices=USER_STATUS, default=USER_STATUS[2][0])
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, default="")
     date_joined = None
 
     USERNAME_FIELD = 'email'
