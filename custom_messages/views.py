@@ -28,7 +28,6 @@ class MessageCreateAPIView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = MessageSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.validated_data["author"] = request.user
         recipient = serializer.validated_data.get("recipient")
         if recipient.status == "Student":
             serializer.save()
