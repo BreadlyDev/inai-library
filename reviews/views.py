@@ -8,9 +8,12 @@ from .serializers import ReviewSerializer
 
 
 class ReviewListAPIView(ListAPIView):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        book_id = self.kwargs['book_id']
+        return Review.objects.filter(book_id=book_id)
 
 
 class ReviewCreateAPIView(CreateAPIView):

@@ -21,7 +21,7 @@ class Review(models.Model):
         super(Review, self).save(*args, **kwargs)
 
         book = self.book
-        reviews = Review.objects.filter(books_id=book)
+        reviews = Review.objects.filter(book_id=book)
         total_rating = sum([review.grade for review in reviews if review.grade is not None])
         num_reviews = len(reviews)
 
