@@ -53,8 +53,8 @@ class User(AbstractUser):
 
     username = None
     password = models.CharField(max_length=150, null=True)
-    first_name = models.CharField(max_length=150, default="", blank=True)
-    last_name = models.CharField(max_length=150, default="", blank=True)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
     email = models.EmailField(unique=True, null=True)
     phone = models.CharField(max_length=150, default="", blank=True, validators=[validate_phone])
     status = models.CharField(max_length=150, choices=USER_STATUS, default=USER_STATUS[2][0])
@@ -86,3 +86,6 @@ class User(AbstractUser):
         db_table = "users"
 
     objects = CustomUserManager()
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"

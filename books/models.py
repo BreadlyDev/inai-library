@@ -1,5 +1,18 @@
 from django.db import models
-from core.settings import IMAGE_FOLDER, ERROR_404_IMAGE
+from core.settings import IMAGE_FOLDER, ERROR_404_IMAGE, E_BOOKS_FOLDER
+
+LANGUAGES = (
+    ("Кыргызский", "Кыргызский"),
+    ("Русский", "Русский"),
+    ("Английский", "Английский"),
+    ("Немецкий", "Немецкий"),
+)
+
+
+def validate_price(phone):
+    if phone.isdigit():
+        return True
+    return False
 
 
 class Category(models.Model):
@@ -15,9 +28,15 @@ class Category(models.Model):
 class Book(models.Model):
     author = models.CharField(max_length=150)
     title = models.CharField(max_length=150)
-    description = models.TextField(default="", blank=True)
+    description = models.TextField(default="Отсутствует описание", blank=True)
     image = models.ImageField(default=ERROR_404_IMAGE, upload_to=IMAGE_FOLDER)
+    e_book = models.FileField(upload_to=E_BOOKS_FOLDER)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    inventory_number = models.CharField(max_length=150)
+    language = models.CharField(choices=LANGUAGES, max_length=150)
+    edition_year = models.CharField(max_length=4)
+    purchase_price = models.CharField(max_length=10, validators=[validate_price])
+    purchase_time = models.DateField()
     quantity = models.IntegerField()
     isPossibleToOrder = models.BooleanField(default=True)
     rating = models.FloatField(default=0)
