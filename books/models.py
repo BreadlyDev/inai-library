@@ -22,7 +22,18 @@ class Category(models.Model):
         db_table = "categories"
 
     def __str__(self):
-        return self.title
+        return f"Category {self.title}"
+
+
+class Subcategory(models.Model):
+    title = models.CharField(max_length=150)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "subcategories"
+
+    def __str__(self):
+        return f"Subcategory {self.title}"
 
 
 class Book(models.Model):
@@ -32,6 +43,7 @@ class Book(models.Model):
     image = models.ImageField(default=ERROR_404_IMAGE, upload_to=IMAGE_FOLDER)
     e_book = models.FileField(upload_to=E_BOOKS_FOLDER)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE)
     inventory_number = models.CharField(max_length=150)
     language = models.CharField(choices=LANGUAGES, max_length=150)
     edition_year = models.CharField(max_length=4)
