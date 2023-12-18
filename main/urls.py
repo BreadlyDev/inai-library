@@ -1,5 +1,5 @@
 """
-URL configuration for core project.
+URL configuration for main project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.2/topics/http/urls/
@@ -24,7 +24,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Library",
         default_version='v1',
-        description="try this ebala",
+        description="Swagger",
         terms_of_service="https://www.example.com/terms/",
         contact=openapi.Contact(email="contact@yourapp.com"),
         license=openapi.License(name="License"),

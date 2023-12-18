@@ -2,17 +2,17 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
-USER_STATUS = (
+ROLES = (
     ("Admin", "Admin"),
     ("Librarian", "Librarian"),
     ("Student", "Student")
 )
 
 
-def validate_phone(phone):
-    if phone[:1].isdigit() and 8 < len(phone) < 10:
-        return True
-    return False
+# def validate_phone(phone):
+#     if phone[:1].isdigit() and 8 < len(phone) < 10:
+#         return True
+#     return False
 
 
 class Group(models.Model):
@@ -29,14 +29,15 @@ class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Email is required field")
-        email = self.normalize_email(email)
-        status = extra_fields.get("status", "Student")
 
-        if status not in dict(USER_STATUS).keys():
+        email = self.normalize_email(email)
+        role = extra_fields.get("role", "Student")
+
+        if role not in dict(ROLES).keys():
             raise ValueError("Invalid user status")
 
         user = self.model(email=email, **extra_fields)
-        user.status = status
+        user.role = role
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -44,43 +45,30 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        extra_fields["status"] = "Admin"
+        extra_fields["role"] = "Admin"
 
         return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractUser):
+    password = models.CharField(max_length=128)
+    firstname = models.CharField(max_length=150, unique=True)
+    lastname = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15)
+    role = models.CharField(max_length=150, choices=ROLES, default=ROLES[1][1])
+    group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True, unique=False)
 
     username = None
-    password = models.CharField(max_length=150, null=True)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
-    email = models.EmailField(unique=True, null=True)
-    phone = models.CharField(max_length=150, default="", blank=True, validators=[validate_phone])
-    status = models.CharField(max_length=150, choices=USER_STATUS, default=USER_STATUS[2][0])
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, default="")
     date_joined = None
     last_login = None
     groups = None
     user_permissions = None
+    first_name = None
+    last_name = None
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-
-    # groups = models.ManyToManyField(
-    #     'auth.Group',
-    #     related_name='custom_users',
-    #     blank=True,
-    #     help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-    #     verbose_name='groups',
-    # )
-    #
-    # user_permissions = models.ManyToManyField(
-    #     'auth.Permission',
-    #     related_name='custom_users',
-    #     blank=True,
-    #     help_text='Specific permissions for this user.',
-    #     verbose_name='user permissions',
-    # )
 
     class Meta:
         db_table = "users"
@@ -88,4 +76,4 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.role} {self.first_name} {self.last_name}"

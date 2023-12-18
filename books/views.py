@@ -1,13 +1,32 @@
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
+from django.http import FileResponse
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from users.permissions import IsLibrarian
-from core.settings import ERROR_404_IMAGE
-from .models import Book, Category
-from .serializers import BookSerializer, CategorySerializer
+from main.settings import ERROR_404_IMAGE
+from .models import Book, Category, Subcategory
+from .serializers import BookSerializer, CategorySerializer, SubcategorySerializer
+
+
+class SubcategoriesCreateAPIView(CreateAPIView):
+    queryset = Subcategory.objects.all()
+    serializer_class = SubcategorySerializer
+    permission_classes = [IsAuthenticated, IsLibrarian]
+
+
+class SubcategoriesListAPIView(ListAPIView):
+    queryset = Subcategory.objects.all()
+    serializer_class = SubcategorySerializer
+    permission_classes = [AllowAny]
+
+
+class SubcategoriesRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Subcategory.objects.all()
+    serializer_class = SubcategorySerializer
+    permission_classes = [IsAuthenticated, IsLibrarian]
 
 
 class CategoriesCreateAPIView(CreateAPIView):
@@ -128,3 +147,16 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
             default_storage.delete(book.image.path)
         book.delete()
         return Response({"message": "Книга успешно удалена"}, status=HTTP_200_OK)
+
+
+class EBookDownloadView(RetrieveAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        file_path = instance.e_book.path
+
+        response = FileResponse(open(file_path, 'rb'))
+        response['Content-Disposition'] = f'attachment; filename="{instance.file_field.name}"'
+        return response

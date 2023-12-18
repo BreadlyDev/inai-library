@@ -3,24 +3,24 @@ from rest_framework.permissions import BasePermission
 
 class IsLibrarian(BasePermission):
     def has_permission(self, request, view):
-        return request.user.status == "Librarian"
+        return request.user.role == "Librarian"
 
 
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
-        return request.user.status == "Admin"
+        return request.user.role == "Admin"
 
 
 class IsStudent(BasePermission):
     def has_permission(self, request, view):
-        return request.user.status == "Student"
+        return request.user.role == "Student"
 
 
 class IsLibrarianOrStudent(BasePermission):
     def has_permission(self, request, view):
-        return request.user.status == "Student" or "Librarian"
+        return request.user.role == "Student" or "Librarian"
 
 
 class NotStudentPermission(BasePermission):
     def has_permission(self, request, view):
-        return not request.user == "Student"
+        return not request.user.role == "Student"

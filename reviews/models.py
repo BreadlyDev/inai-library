@@ -17,20 +17,36 @@ class Review(models.Model):
         ordering = ["-created_time"]
         db_table = "reviews"
 
+    # def save(self, *args, **kwargs):
+    #     super(Review, self).save(*args, **kwargs)
+    #
+    #     book = self.book
+    #     reviews = Review.objects.filter(book_id=book)
+    #     total_rating = sum([review.grade for review in reviews if review.grade is not None])
+    #     num_reviews = len(reviews)
+    #
+    #     if num_reviews > 0:
+    #         book.rating = round(total_rating / num_reviews, 2)
+    #     else:
+    #         book.rating = 0
+    #
+    #     book.save()
     def save(self, *args, **kwargs):
+        if self.id:
+            return
+
         super(Review, self).save(*args, **kwargs)
 
-        book = self.book
-        reviews = Review.objects.filter(book_id=book)
-        total_rating = sum([review.grade for review in reviews if review.grade is not None])
-        num_reviews = len(reviews)
+        self.book.total_rating += self.grade
+        self.book.reviews_quantity += 1
 
-        if num_reviews > 0:
-            book.rating = round(total_rating / num_reviews, 2)
+        if self.book.reviews_quantity > 0:
+            self.book.rating = round(float(self.book.total_rating)
+                                / float(self.book.reviews_quantity), 2)
         else:
-            book.rating = 0
+            self.book.rating = 0
 
-        book.save()
+        self.book.save()
 
     def __str__(self):
         return f"Review by {self.author} on {self.book} book"

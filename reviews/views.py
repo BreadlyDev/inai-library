@@ -28,7 +28,7 @@ class ReviewCreateAPIView(CreateAPIView):
         book = serializer.validated_data["book"]
         serializer.save()
 
-        book.reviews += 1
+        book.reviews_quantity += 1
         book.save()
 
         return Response(serializer.data, status=HTTP_201_CREATED)

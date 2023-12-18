@@ -1,5 +1,5 @@
 from django.db import models
-from core.settings import IMAGE_FOLDER, ERROR_404_IMAGE, E_BOOKS_FOLDER
+from main.settings import IMAGE_FOLDER, ERROR_404_IMAGE, E_BOOKS_FOLDER
 
 LANGUAGES = (
     ("Кыргызский", "Кыргызский"),
@@ -53,11 +53,12 @@ class Book(models.Model):
     isPossibleToOrder = models.BooleanField(default=True)
     rating = models.FloatField(default=0)
     orders = models.IntegerField(default=0)
-    reviews = models.IntegerField(default=0)
+    reviews_quantity = models.IntegerField(default=0)
+    total_rating = models.IntegerField(default=0)
     created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["reviews"]
+        ordering = ["reviews_quantity"]
         db_table = "books"
 
     def __str__(self):
