@@ -4,7 +4,7 @@ from .models import User, Group
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    status = serializers.ReadOnlyField()
+    role = serializers.ReadOnlyField()
 
     class Meta:
         model = User
