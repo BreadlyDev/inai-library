@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticate
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
-from .permissions import NotStudentPermission, IsAdmin, IsLibrarian
+from .permissions import NotStudentPermission, IsAdmin, IsLibrarian, IsAdminOrReadOnly
 from .serializers import UserSerializer, LoginSerializer, GroupSerializer
 from .models import User, Group
 
@@ -102,7 +102,6 @@ class UserGetAPIView(APIView):
     @classmethod
     def get(cls, request, pk):
         user = User.objects.filter(pk=pk)
-        # user = request.user
         serialized_user = UserSerializer(user).to_representation(user)
         return Response(serialized_user.data)
 
@@ -115,7 +114,7 @@ class GroupCreateAPIView(CreateAPIView):
 class GroupChangeAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAdmin]
+    permission_classes = [IsAdminOrReadOnly]
 
 
 class GroupListAPIView(ListAPIView):
