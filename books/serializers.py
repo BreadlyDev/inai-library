@@ -7,6 +7,15 @@ class BookSerializer(serializers.ModelSerializer):
     orders = serializers.ReadOnlyField()
     reviews = serializers.ReadOnlyField()
     isPossibleToOrder = serializers.BooleanField(default=True)
+    inventory_number = serializers.CharField(allow_null=True)
+    e_book = serializers.FileField(allow_null=True)
+
+    def validate(self, data):
+        if data["inventory_number"] is None and data["e_book"] is None:
+            raise serializers.ValidationError(
+                "Хотя бы одно из полей (Инвентарный номер, электронная книга) должно быть заполнено"
+            )
+        return data
 
     class Meta:
         model = Book

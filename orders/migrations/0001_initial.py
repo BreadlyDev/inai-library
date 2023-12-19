@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(choices=[('Ожидает проверки', 'Ожидает проверки'), ('В обработке', 'В обработке'), ('Выполнен', 'Выполнен'), ('Отклонено', 'Отклонено')], default='Ожидает проверки', max_length=50)),
                 ('comment', models.TextField(blank=True, default='')),
                 ('created_time', models.DateTimeField(auto_now_add=True)),
-                ('due_time', models.DateTimeField(null=True, validators=[orders.models.validate_due_date])),
+                ('due_time', models.DateTimeField(null=True)),
                 ('books', models.ManyToManyField(to='books.book')),
                 ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],

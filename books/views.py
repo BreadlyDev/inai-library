@@ -1,8 +1,9 @@
 from django.http import FileResponse
+from rest_framework.serializers import ValidationError
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK
+from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from users.permissions import IsLibrarian
@@ -55,16 +56,6 @@ class BooksCreateAPIView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = BookSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        if (serializer.validated_data["inventory_number"] is None
-                and serializer.validated_data["e_book"] is None):
-            raise ValueError("Хотя бы одно из полей (Инментарный номер, электронная книга) "
-                             "должно быть заполнено")
-
-        # if serializer.validated_data["quantity"] == 0:
-        #     serializer.validated_data["isPossibleToOrder"] = False
-        # if serializer.validated_data["quantity"] < 0:
-        #     raise ValueError("Количество книг не может быть отрицательным")
         serializer.save()
 
         return Response(
