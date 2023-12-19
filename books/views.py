@@ -153,6 +153,9 @@ class EBookDownloadView(RetrieveAPIView):
         instance = self.get_object()
         file_path = instance.e_book.path
 
+        if not file_path:
+            return Response({"message": "Файл отсутствует"})
+
         response = FileResponse(open(file_path, "rb"))
         response["Content-Disposition"] = f"attachment; filename={instance.file_field.name}"
         return response
