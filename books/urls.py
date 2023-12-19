@@ -7,11 +7,11 @@ urlpatterns = [
     path("category/create", CategoriesCreateAPIView.as_view()),
     path("category/all", CategoriesListAPIView.as_view()),
     path("category/<int:pk>", CategoriesRetrieveUpdateDeleteAPIView.as_view()),
-    path("category/create", CategoriesCreateAPIView.as_view()),
-    path("category/all", CategoriesListAPIView.as_view()),
-    path("category/<int:pk>", CategoriesRetrieveUpdateDeleteAPIView.as_view()),
+    path("subcategory/create", SubcategoriesCreateAPIView.as_view()),
+    path("subcategory/all", SubcategoriesListAPIView.as_view()),
+    path("subcategory/<int:pk>", SubcategoriesRetrieveUpdateDeleteAPIView.as_view()),
     path("book/create", BooksCreateAPIView.as_view()),
     path("book/all", BooksListAPIView.as_view()),
     path("book/<int:pk>", BooksRetrieveUpdateDeleteAPIView.as_view()),
-    path("book/<int:pk>", EBookDownloadView.as_view())
+    path("ebook/<int:pk>", EBookDownloadView.as_view())
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
