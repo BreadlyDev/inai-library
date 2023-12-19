@@ -16,6 +16,8 @@ class Review(models.Model):
     class Meta:
         ordering = ["-created_time"]
         db_table = "reviews"
+        verbose_name = "Review"
+        verbose_name_plural = "Reviews"
 
     # def save(self, *args, **kwargs):
     #     super(Review, self).save(*args, **kwargs)

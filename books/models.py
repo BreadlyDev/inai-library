@@ -26,6 +26,8 @@ class Category(models.Model):
 
     class Meta:
         db_table = "categories"
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
 
     def __str__(self):
         return f"Category {self.title}"
@@ -37,6 +39,8 @@ class Subcategory(models.Model):
 
     class Meta:
         db_table = "subcategories"
+        verbose_name = "Subcategory"
+        verbose_name_plural = "Subcategories"
 
     def __str__(self):
         return f"Subcategory {self.title}"
@@ -66,6 +70,8 @@ class Book(models.Model):
     class Meta:
         ordering = ["reviews_quantity"]
         db_table = "books"
+        verbose_name = "Book"
+        verbose_name_plural = "Books"
 
     def __str__(self):
         return f"{self.title} book with id = {self.id}"

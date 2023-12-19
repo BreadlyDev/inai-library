@@ -32,6 +32,8 @@ class Order(models.Model):
     class Meta:
         ordering = ["-created_time"]
         db_table = "orders"
+        verbose_name = "Order"
+        verbose_name_plural = "Orders"
 
     def formatted_created_time(self):
         local_time = timezone.localtime(self.created_time)

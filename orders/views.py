@@ -27,7 +27,7 @@ class OrderCreateAPIView(CreateAPIView):
         for book in order.books.all():
             if book.quantity <= 0 or not book.isPossibleToOrder:
                 continue
-            book.orders += 1
+            book.orders_quantity += 1
             book.quantity -= 1
             book.save()
 

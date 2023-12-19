@@ -19,6 +19,8 @@ class Group(models.Model):
 
     class Meta:
         db_table = "groups"
+        verbose_name = "Group"
+        verbose_name_plural = "Groups"
 
     def __str__(self):
         return f"{self.name} group"
@@ -71,6 +73,8 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "users"
+        verbose_name = "User"
+        verbose_name_plural = "Users"
 
     objects = CustomUserManager()
 
