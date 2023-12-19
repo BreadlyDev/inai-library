@@ -14,11 +14,6 @@ def validate_phone(phone):
         return ValidationError("Номер телефона должен состоять из цифр")
 
 
-def validate_group(role, group):
-    if not group and role == ROLES[2][1]:
-        return ValidationError({"message": "У студентов обязательно должна быть указана группа"})
-
-
 class Group(models.Model):
     name = models.CharField(max_length=150)
 
@@ -43,6 +38,8 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("Invalid user status")
 
         user = self.model(email=email, **extra_fields)
+        if user.group is None and role == ROLES[2][1]:
+            return ValidationError({"message": "У студентов обязательно должна быть указана группа"})
         user.role = role
         user.set_password(password)
         user.save(using=self._db)
@@ -64,8 +61,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=15, validators=[validate_phone])
     role = models.CharField(max_length=150, choices=ROLES, default=ROLES[2][1])
     group = models.ForeignKey(Group, on_delete=models.SET_NULL,
-                              null=True, blank=True, unique=False,
-                              validators=[validate_group])
+                              null=True, blank=True, unique=False)
 
     username = None
     date_joined = None
@@ -91,4 +87,6 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if not self.password:
             self.set_password(self.password)
+        if self.group is None and self.role == ROLES[2][1]:
+            raise ValidationError({"message": "У студентов обязательно должна быть указана группа"})
         super().save(*args, **kwargs)

@@ -7,6 +7,12 @@ from .models import Review
 from .serializers import ReviewSerializer
 
 
+class AllReviewListAPIView(ListAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [AllowAny]
+
+
 class ReviewListAPIView(ListAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [AllowAny]

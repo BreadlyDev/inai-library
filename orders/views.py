@@ -16,7 +16,8 @@ class OrderCreateAPIView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.validated_data["owner"] = request.user
+        user = request.user
+        serializer.validated_data["owner"] = user
         books = serializer.validated_data["books"]
 
         for book in books:
@@ -32,8 +33,8 @@ class OrderCreateAPIView(CreateAPIView):
             book.quantity -= 1
             book.save()
 
-        owner_phone = {"owner_phone": request.user.phone}
-        owner_data = {"owner_data": str(request.user.firstname) + " " + str(request.user.lastname)}
+        owner_phone = {"owner_phone": user.phone}
+        owner_data = {"owner_data": f"{user.firstname} {user.lastname}"}
 
         return Response({**serializer.data, **owner_phone, **owner_data}, status=HTTP_201_CREATED)
 
@@ -64,7 +65,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             return Response({"error": "Неверный статус заказа"})
 
         if (
-                request.user.role == "Student"
+                request.user.role == ROLES[2][1]
                 and order.status == ORDER_STATUS[0][1]
                 and order.owner == request.user
         ):
@@ -83,7 +84,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         order = self.get_object()
 
         if (
-                request.user.role == "Student"
+                request.user.role == ROLES[2][1]
                 and order.status == ORDER_STATUS[0][1]
                 and order.owner == request.user
         ):
@@ -93,7 +94,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             )
 
         if (
-                request.user.role == "Librarian"
+                request.user.role == ROLES[1][1]
                 and order.status == ORDER_STATUS[2][1]
         ):
             order.delete()
