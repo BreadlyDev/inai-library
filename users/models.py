@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-
+from rest_framework.exceptions import ValidationError
 
 ROLES = (
     ("Admin", "Admin"),
@@ -9,10 +9,9 @@ ROLES = (
 )
 
 
-# def validate_phone(phone):
-#     if phone[:1].isdigit() and 8 < len(phone) < 10:
-#         return True
-#     return False
+def validate_phone(phone):
+    if not phone.isdigit():
+        return ValidationError("Номер телефона должен состоять из цифр")
 
 
 class Group(models.Model):
@@ -52,10 +51,10 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
     password = models.CharField(max_length=128)
-    firstname = models.CharField(max_length=150, unique=True)
-    lastname = models.CharField(max_length=150, unique=True)
+    firstname = models.CharField(max_length=150)
+    lastname = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=15)
+    phone = models.CharField(max_length=15, validators=[validate_phone])
     role = models.CharField(max_length=150, choices=ROLES, default=ROLES[2][1])
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True, unique=False)
 
@@ -67,7 +66,7 @@ class User(AbstractUser):
     first_name = None
     last_name = None
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     class Meta:
@@ -77,3 +76,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.role} {self.firstname} {self.lastname}"
+
+    def save(self, *args, **kwargs):
+        if not self.password:
+            self.set_password(self.password)

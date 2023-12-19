@@ -12,7 +12,7 @@ class ReviewListAPIView(ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        book_id = self.kwargs['book_id']
+        book_id = self.kwargs["book_id"]
         return Review.objects.filter(book_id=book_id)
 
 

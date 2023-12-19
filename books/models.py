@@ -1,4 +1,3 @@
-# from django.core.exceptions import ValidationError
 from django.db import models
 from rest_framework.exceptions import ValidationError
 
@@ -14,13 +13,12 @@ LANGUAGES = (
 
 def validate_price(phone):
     if not phone.isdigit():
-        raise ValidationError("Price should be numeric")
+        raise ValidationError("Цена должна состоять из цифр")
 
 
 def validate_edition_year(edition_year):
     if not edition_year.isdigit():
-        raise ValidationError("Edition_year should be numeric")
-
+        raise ValidationError("Год издания должен состоять из цифр")
 
 
 class Category(models.Model):
@@ -42,7 +40,7 @@ class Subcategory(models.Model):
 
     def __str__(self):
         return f"Subcategory {self.title}"
-
+g
 
 class Book(models.Model):
     author = models.CharField(max_length=150)

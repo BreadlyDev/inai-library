@@ -42,7 +42,7 @@ class OrderListAPIView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        if user.status == "Student":
+        if user.role == "Student":
             return Order.objects.filter(owner=user)
 
         return Order.objects.all()
@@ -60,7 +60,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             return Response({"error": "Неверный статус заказа"})
 
         if (
-                request.user.status == "Student"
+                request.user.role == "Student"
                 and order.status == ORDER_STATUS[0][1]
                 and order.owner == request.user
         ):
@@ -79,7 +79,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         order = self.get_object()
 
         if (
-                request.user.status == "Student"
+                request.user.role == "Student"
                 and order.status == ORDER_STATUS[0][1]
                 and order.owner == request.user
         ):
@@ -89,7 +89,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             )
 
         if (
-                request.user.status == "Librarian"
+                request.user.role == "Librarian"
                 and order.status == ORDER_STATUS[2][1]
         ):
             order.delete()
