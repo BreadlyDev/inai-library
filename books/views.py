@@ -56,10 +56,15 @@ class BooksCreateAPIView(CreateAPIView):
         serializer = BookSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        if serializer.validated_data["quantity"] == 0:
-            serializer.validated_data["isPossibleToOrder"] = False
-        if serializer.validated_data["quantity"] < 0:
-            raise ValueError("Количество книг не может быть отрицательным")
+        if (serializer.validated_data["inventory_number"] is None
+                and serializer.validated_data["e_book"] is None):
+            raise ValueError("Хотя бы одно из полей (Инментарный номер, электронная книга) "
+                             "должно быть заполнено")
+
+        # if serializer.validated_data["quantity"] == 0:
+        #     serializer.validated_data["isPossibleToOrder"] = False
+        # if serializer.validated_data["quantity"] < 0:
+        #     raise ValueError("Количество книг не может быть отрицательным")
         serializer.save()
 
         return Response(
