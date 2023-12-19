@@ -121,4 +121,4 @@ class GroupChangeAPIView(RetrieveUpdateDestroyAPIView):
 class GroupListAPIView(ListAPIView):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
