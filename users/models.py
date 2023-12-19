@@ -56,7 +56,7 @@ class User(AbstractUser):
     lastname = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15)
-    role = models.CharField(max_length=150, choices=ROLES, default=ROLES[1][1])
+    role = models.CharField(max_length=150, choices=ROLES, default=ROLES[2][1])
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True, unique=False)
 
     username = None
