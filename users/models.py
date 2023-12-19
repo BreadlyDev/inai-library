@@ -14,6 +14,11 @@ def validate_phone(phone):
         return ValidationError("Номер телефона должен состоять из цифр")
 
 
+def validate_group(role, group):
+    if not group and role == ROLES[2][1]:
+        return ValidationError({"message": "У студентов обязательно должна быть указана группа"})
+
+
 class Group(models.Model):
     name = models.CharField(max_length=150)
 
@@ -58,7 +63,9 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, validators=[validate_phone])
     role = models.CharField(max_length=150, choices=ROLES, default=ROLES[2][1])
-    group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True, unique=False)
+    group = models.ForeignKey(Group, on_delete=models.SET_NULL,
+                              null=True, blank=True, unique=False,
+                              validators=[validate_group])
 
     username = None
     date_joined = None

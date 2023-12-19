@@ -5,6 +5,7 @@ from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_204_NO_CONTENT, HTTP_
 from users.permissions import IsStudent, IsLibrarianOrStudent
 from .models import Order, ORDER_STATUS
 from .serializers import OrderSerializer, LibrarianOrderSerializer
+from users.models import ROLES
 
 
 class OrderCreateAPIView(CreateAPIView):
@@ -31,7 +32,10 @@ class OrderCreateAPIView(CreateAPIView):
             book.quantity -= 1
             book.save()
 
-        return Response(serializer.data, status=HTTP_201_CREATED)
+        owner_phone = {"owner_phone": request.user.phone}
+        owner_data = {"owner_data": str(request.user.firstname) + " " + str(request.user.lastname)}
+
+        return Response({**serializer.data, **owner_phone, **owner_data}, status=HTTP_201_CREATED)
 
 
 class OrderListAPIView(ListAPIView):
@@ -42,7 +46,7 @@ class OrderListAPIView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        if user.role == "Student":
+        if user.role == ROLES[2][1]:
             return Order.objects.filter(owner=user)
 
         return Order.objects.all()
