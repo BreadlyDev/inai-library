@@ -1,11 +1,11 @@
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_204_NO_CONTENT, HTTP_201_CREATED
+from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_204_NO_CONTENT, HTTP_201_CREATED, HTTP_200_OK
 from users.permissions import IsStudent, IsLibrarianOrStudent
 from .models import Order, ORDER_STATUS
 from .serializers import OrderSerializer, LibrarianOrderSerializer
-from users.models import ROLES
+from users.models import ROLES, User
 
 
 class OrderCreateAPIView(CreateAPIView):
@@ -33,10 +33,14 @@ class OrderCreateAPIView(CreateAPIView):
             book.quantity -= 1
             book.save()
 
-        owner_phone = {"owner_phone": user.phone}
-        owner_data = {"owner_data": f"{user.firstname} {user.lastname}"}
+        owner_info = {
+            "owner_firstname": user.firstname,
+            "owner_lastname": user.lastname,
+            "owner_phone": user.phone,
+            "owner_group": user.group.name,
+        }
 
-        return Response({**serializer.data, **owner_phone, **owner_data}, status=HTTP_201_CREATED)
+        return Response({**serializer.data, **owner_info}, status=HTTP_201_CREATED)
 
 
 class OrderListAPIView(ListAPIView):
@@ -52,11 +56,53 @@ class OrderListAPIView(ListAPIView):
 
         return Order.objects.all()
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        data = []
+        for order_data in serializer.data:
+            owner_instance = User.objects.filter(email=order_data["owner"]).first()
+            owner_info = {
+                "owner_firstname": owner_instance.firstname,
+                "owner_lastname": owner_instance.lastname,
+                "owner_phone": owner_instance.phone,
+                "owner_group": owner_instance.group.name,
+            }
+            order_data.update(owner_info)
+            data.append(order_data)
+        return Response(data)
+
 
 class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsLibrarianOrStudent]
+
+    def get(self, request, *args, **kwargs):
+        order = self.get_object()
+        user = request.user
+
+        if user.role == "Student":
+            if str(user.email) != str(order.owner):
+                return Response({"message": "Вы можете просматривать только свои заказы"})
+
+        owner_instance = User.objects.filter(email=order["owner"]).first()
+        if owner_instance:
+            owner_info = {
+                "owner_firstname": owner_instance.firstname,
+                "owner_lastname": owner_instance.lastname,
+                "owner_phone": owner_instance.phone,
+            }
+        else:
+            owner_info = {}
+
+        serializer = OrderSerializer(order)
+        response_data = {
+            **serializer.data,
+            **owner_info,
+        }
+
+        return Response(response_data, status=HTTP_200_OK)
 
     def put(self, request, *args, **kwargs):
         order = self.get_object()
@@ -71,7 +117,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         ):
             return super().put(request, *args, **kwargs)
 
-        if request.user.status == "Librarian":
+        if request.user.status == ROLES[2][1]:
             self.serializer_class = LibrarianOrderSerializer
             return super().put(request, *args, **kwargs)
 
