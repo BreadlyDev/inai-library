@@ -17,9 +17,9 @@ class UserRegisterAPIView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         data = request.data
 
-        if not data["phone"][1:].isdigit() \
-                or not 8 < len(data["phone"]) < 14:
-            return Response({"message": "Неверный номер телефона"}, status=HTTP_400_BAD_REQUEST)
+        # if not data["phone"][1:].isdigit() \
+        #         or not 8 < len(data["phone"]) < 14:
+        #     return Response({"message": "Неверный номер телефона"}, status=HTTP_400_BAD_REQUEST)
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)

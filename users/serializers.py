@@ -13,8 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User(
             email=validated_data["email"],
-            first_name=validated_data["firstname"],
-            last_name=validated_data["lastname"],
+            firstname=validated_data["firstname"],
+            lastname=validated_data["lastname"],
             phone=validated_data["phone"],
             group=validated_data["group"]
         )
