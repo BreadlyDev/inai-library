@@ -38,8 +38,6 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("Invalid user status")
 
         user = self.model(email=email, **extra_fields)
-        if user.group is None and role == ROLES[2][1]:
-            return ValidationError({"message": "У студентов обязательно должна быть указана группа"})
         user.role = role
         user.set_password(password)
         user.save(using=self._db)
