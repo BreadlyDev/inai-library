@@ -40,7 +40,7 @@ class Subcategory(models.Model):
 
     def __str__(self):
         return f"Subcategory {self.title}"
-g
+
 
 class Book(models.Model):
     author = models.CharField(max_length=150)

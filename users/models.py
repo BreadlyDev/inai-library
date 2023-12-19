@@ -80,3 +80,4 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if not self.password:
             self.set_password(self.password)
+        super().save(*args, **kwargs)
