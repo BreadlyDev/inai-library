@@ -2,6 +2,12 @@ from rest_framework import serializers
 from .models import User, Group
 
 
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = "__all__"
+
+
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     role = serializers.ReadOnlyField()
@@ -34,9 +40,3 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("email", "password")
-
-
-class GroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Group
-        fields = "__all__"

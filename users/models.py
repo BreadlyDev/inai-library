@@ -14,6 +14,11 @@ def validate_phone(phone):
         return ValidationError("Номер телефона должен состоять из цифр")
 
 
+def set_password_exist(self, password):
+    if not password:
+        self.set_password(password)
+
+
 class Group(models.Model):
     name = models.CharField(max_length=150)
 
@@ -83,8 +88,8 @@ class User(AbstractUser):
         return f"{self.role} {self.firstname} {self.lastname}"
 
     def save(self, *args, **kwargs):
-        if not self.password:
-            self.set_password(self.password)
         if self.group is None and self.role == ROLES[2][1]:
             raise ValidationError({"message": "У студентов обязательно должна быть указана группа"})
+        if self.password and not self.password.startswith(("pbkdf2_sha256$", "bcrypt")):
+            self.set_password(self.password)
         super().save(*args, **kwargs)

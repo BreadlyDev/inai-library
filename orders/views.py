@@ -81,28 +81,27 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     def get(self, request, *args, **kwargs):
         order = self.get_object()
         user = request.user
+        owner_instance = User.objects.get(pk=order.owner_id)
 
         if user.role == "Student":
-            if str(user.email) != str(order.owner):
+            if user.email != owner_instance.email:
                 return Response({"message": "Вы можете просматривать только свои заказы"})
 
-        owner_instance = User.objects.filter(email=order["owner"]).first()
         if owner_instance:
             owner_info = {
                 "owner_firstname": owner_instance.firstname,
                 "owner_lastname": owner_instance.lastname,
                 "owner_phone": owner_instance.phone,
+                "owner_group": owner_instance.group.name,
             }
         else:
             owner_info = {}
 
-        serializer = OrderSerializer(order)
-        response_data = {
-            **serializer.data,
-            **owner_info,
-        }
+        serializer = self.get_serializer(order)
+        order = serializer.data
+        order.update(owner_info)
 
-        return Response(response_data, status=HTTP_200_OK)
+        return Response(order, status=HTTP_200_OK)
 
     def put(self, request, *args, **kwargs):
         order = self.get_object()
