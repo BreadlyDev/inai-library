@@ -1,5 +1,5 @@
 from django.http import FileResponse
-from rest_framework.serializers import ValidationError
+from rest_framework.decorators import api_view
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -146,6 +146,33 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class EBookDownloadView(RetrieveAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        file_path = instance.e_book.path
+
+        if not file_path:
+            return Response({"message": "Файл отсутствует"})
+
+        response = FileResponse(open(file_path, "rb"))
+        response["Content-Disposition"] = f"attachment; filename={instance.file_field.name}"
+        return response
+
+
+@api_view(["POST"])
+def create_book_report():
+    books = Book.objects.all()
+
+    for book in books:
+        pass
+
+
+    pass
+
+
+class BookReportCreateAPIView(ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
