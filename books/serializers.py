@@ -6,7 +6,7 @@ class BookSerializer(serializers.ModelSerializer):
     rating = serializers.ReadOnlyField()
     orders = serializers.ReadOnlyField()
     reviews = serializers.ReadOnlyField()
-    isPossibleToOrder = serializers.BooleanField(default=True)
+    is_possible_to_order = serializers.BooleanField(default=True)
     inventory_number = serializers.CharField(allow_null=True)
     e_book = serializers.FileField(allow_null=True)
 

@@ -1,7 +1,6 @@
 import datetime
 
 from django.db import models
-from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from main.settings import IMAGE_FOLDER, ERROR_404_IMAGE, E_BOOKS_FOLDER
 
@@ -24,12 +23,6 @@ def validate_edition_year(edition_year):
     current_year = datetime.datetime.now().year
     if int(edition_year) > int(current_year):
         raise ValidationError("Книга не могла быть выпущена в будущем")
-
-
-# def validate_subcategory(book_id):
-#     book = get_object_or_404(Book, id=book_id)
-#     if book.category != book.subcategory.category:
-#         raise ValidationError("Категория подкатегории должна совпадать с категорией книги")
 
 
 def validate_inventory_number(inventory_number):
@@ -82,7 +75,7 @@ class Book(models.Model):
     purchase_price = models.CharField(max_length=10, validators=[validate_price])
     purchase_time = models.DateField()
     quantity = models.PositiveIntegerField()
-    isPossibleToOrder = models.BooleanField(default=True)
+    is_possible_to_order = models.BooleanField(default=True)
     rating = models.FloatField(default=0)
     orders_quantity = models.PositiveIntegerField(default=0)
     reviews_quantity = models.PositiveIntegerField(default=0)

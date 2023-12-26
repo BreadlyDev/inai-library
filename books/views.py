@@ -1,12 +1,10 @@
-import os
 from datetime import datetime
-
 from django.http import FileResponse
-from rest_framework.decorators import api_view
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK
+from rest_framework.views import APIView
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from users.permissions import IsLibrarian
@@ -165,46 +163,50 @@ class EBookDownloadView(RetrieveAPIView):
         return response
 
 
-@api_view(["POST"])
-def create_book_report(request):
-    try:
-        subcategories = Subcategory.objects.all()
-        books = Book.objects.all()
-        document, table = create_report()
+class BookReportCreateAPIView(CreateAPIView):
+    permission_classes = [IsAuthenticated, IsLibrarian]
 
-        for subcategory in subcategories:
-            j = 0
-            for book in books:
-                if book.subcategory == subcategory:
-                    row_cells = table.add_row().cells
-                    table_texts = ["",
-                                   str(subcategory.title) if j == 0 else "",
-                                   "Очная/компьютерные  технологии" if j == 0 else "",
-                                   str(book.inventory_number),
-                                   str(book.quantity),
-                                   str(book.author),
-                                   str(book.title),
-                                   str(book.edition_year)]
-                    fill_table(row_cells=row_cells, table_texts=table_texts)
-                    j += 1
+    def post(self, request, *args, **kwargs):
+        try:
+            subcategories = Subcategory.objects.all()
+            books = Book.objects.all()
+            document, table = create_report()
 
-        document.save(f"media/{REPORTS_FOLDER}отчёт_за_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.docx")
-        return Response({"message": "Report created successfully"})
-    except PermissionError:
-        return Response({"message": "You should first close the file before creating it again"})
+            for subcategory in subcategories:
+                j = 0
+                for book in books:
+                    if book.subcategory == subcategory:
+                        row_cells = table.add_row().cells
+                        table_texts = ["",
+                                       str(subcategory.title) if j == 0 else "",
+                                       "Очная/компьютерные  технологии" if j == 0 else "",
+                                       str(book.inventory_number),
+                                       str(book.quantity),
+                                       str(book.author),
+                                       str(book.title),
+                                       str(book.edition_year)]
+                        fill_table(row_cells=row_cells, table_texts=table_texts)
+                        j += 1
+
+            document.save(
+                f"{BASE_DIR}/media/{REPORTS_FOLDER}отчёт_за_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.docx")
+            print(f"{BASE_DIR}/media/{REPORTS_FOLDER}отчёт_за_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.docx")
+            return Response({"message": "Report created successfully"})
+        except PermissionError:
+            return Response({"message": "You should first close the file before creating it again"})
 
 
-class BookReportCreateAPIView(ListAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        file_path = instance.e_book.path
-
-        if not file_path:
-            return Response({"message": "Файл отсутствует"})
-
-        response = FileResponse(open(file_path, "rb"))
-        response["Content-Disposition"] = f"attachment; filename={instance.file_field.name}"
-        return response
+# class BookReportCreateAPIView(ListAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
+#
+#     def retrieve(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         file_path = instance.e_book.path
+#
+#         if not file_path:
+#             return Response({"message": "Файл отсутствует"})
+#
+#         response = FileResponse(open(file_path, "rb"))
+#         response["Content-Disposition"] = f"attachment; filename={instance.file_field.name}"
+#         return response
