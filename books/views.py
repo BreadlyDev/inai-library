@@ -1,15 +1,19 @@
+import os
+from datetime import datetime
+
 from django.http import FileResponse
 from rest_framework.decorators import api_view
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from users.permissions import IsLibrarian
-from main.settings import ERROR_404_IMAGE
+from main.settings import ERROR_404_IMAGE, REPORTS_FOLDER, BASE_DIR
 from .models import Book, Category, Subcategory
 from .serializers import BookSerializer, CategorySerializer, SubcategorySerializer
+from .reports import create_report, fill_table
 
 
 class SubcategoriesCreateAPIView(CreateAPIView):
@@ -162,14 +166,32 @@ class EBookDownloadView(RetrieveAPIView):
 
 
 @api_view(["POST"])
-def create_book_report():
-    books = Book.objects.all()
+def create_book_report(request):
+    try:
+        subcategories = Subcategory.objects.all()
+        books = Book.objects.all()
+        document, table = create_report()
 
-    for book in books:
-        pass
+        for subcategory in subcategories:
+            j = 0
+            for book in books:
+                if book.subcategory == subcategory:
+                    row_cells = table.add_row().cells
+                    table_texts = ["",
+                                   str(subcategory.title) if j == 0 else "",
+                                   "Очная/компьютерные  технологии" if j == 0 else "",
+                                   str(book.inventory_number),
+                                   str(book.quantity),
+                                   str(book.author),
+                                   str(book.title),
+                                   str(book.edition_year)]
+                    fill_table(row_cells=row_cells, table_texts=table_texts)
+                    j += 1
 
-
-    pass
+        document.save(f"media/{REPORTS_FOLDER}отчёт_за_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.docx")
+        return Response({"message": "Report created successfully"})
+    except PermissionError:
+        return Response({"message": "You should first close the file before creating it again"})
 
 
 class BookReportCreateAPIView(ListAPIView):

@@ -162,6 +162,7 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 IMAGE_FOLDER = "books/"
 E_BOOKS_FOLDER = "e_books_files"
+REPORTS_FOLDER = "reports/"
 ERROR_404_IMAGE = "error_404/Error404img.png"
 
 STATIC_URL = "static/"

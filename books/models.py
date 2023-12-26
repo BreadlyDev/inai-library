@@ -1,6 +1,8 @@
-from django.db import models
-from rest_framework.exceptions import ValidationError
+import datetime
 
+from django.db import models
+from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import ValidationError
 from main.settings import IMAGE_FOLDER, ERROR_404_IMAGE, E_BOOKS_FOLDER
 
 LANGUAGES = (
@@ -19,6 +21,26 @@ def validate_price(phone):
 def validate_edition_year(edition_year):
     if not edition_year.isdigit():
         raise ValidationError("Год издания должен состоять из цифр")
+    current_year = datetime.datetime.now().year
+    if int(edition_year) > int(current_year):
+        raise ValidationError("Книга не могла быть выпущена в будущем")
+
+
+# def validate_subcategory(book_id):
+#     book = get_object_or_404(Book, id=book_id)
+#     if book.category != book.subcategory.category:
+#         raise ValidationError("Категория подкатегории должна совпадать с категорией книги")
+
+
+def validate_inventory_number(inventory_number):
+    if (inventory_number[:7] != "INAI.KG"
+            and inventory_number[7:].isdigit()
+            or inventory_number[:5] != "КГФИ."
+            and inventory_number[5:].isdigit()
+    ):
+        raise ValidationError("Неправильный формат инвентарного номера. "
+                              "Инвентарный номер должен начинаться с"
+                              "INAI.KG или КГФИ. и заканчиваться цифрами")
 
 
 class Category(models.Model):
@@ -54,7 +76,7 @@ class Book(models.Model):
     e_book = models.FileField(upload_to=E_BOOKS_FOLDER, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE)
-    inventory_number = models.CharField(max_length=150, null=True, blank=True)
+    inventory_number = models.CharField(max_length=150, null=True, blank=True, validators=[validate_inventory_number])
     language = models.CharField(choices=LANGUAGES, max_length=150)
     edition_year = models.CharField(max_length=4, validators=[validate_edition_year])
     purchase_price = models.CharField(max_length=10, validators=[validate_price])
@@ -72,6 +94,13 @@ class Book(models.Model):
         db_table = "books"
         verbose_name = "Book"
         verbose_name_plural = "Books"
+
+    def validate_subcategory(self):
+        if self.category != self.subcategory.category:
+            raise ValidationError("Категория подкатегории должна совпадать с категорией книги")
+
+    def clean(self):
+        self.validate_subcategory()
 
     def __str__(self):
         return f"{self.title} book with id = {self.id}"

@@ -2,6 +2,8 @@ db.sqlite3
 .idea
 media/books
 media/e_books_files
+media/reports
+media
 users/migrations
 reviews/migrations
 orders/migrations
