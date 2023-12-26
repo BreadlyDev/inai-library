@@ -94,8 +94,8 @@ def create_report():
     table.add_row()
     fill_table_header(table=table, row_index=1, table_texts=table_texts_2)
 
-    add_styled_paragraph(document=document, text=texts[6], is_bold=False, alignment=WD_ALIGN_PARAGRAPH.RIGHT)
-    add_styled_paragraph(document=document, text=texts[7], space_after=Inches(2.0))
+    add_styled_paragraph(document=document, text=texts[6], space_before=Inches(1.0), is_bold=False, alignment=WD_ALIGN_PARAGRAPH.RIGHT)
+    add_styled_paragraph(document=document, text=texts[7], space_before=Inches(1.0))
 
     return document, table
 

@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from django.http import FileResponse
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
@@ -143,11 +144,15 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
 
         if book.image and book.image.path != ERROR_404_IMAGE:
             default_storage.delete(book.image.path)
+
+        if book.e_book:
+            default_storage.delete(book.e_book.path)
+
         book.delete()
         return Response({"message": "Книга успешно удалена"}, status=HTTP_200_OK)
 
 
-class EBookDownloadView(RetrieveAPIView):
+class EBookDownloadAPIView(RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
@@ -196,17 +201,29 @@ class BookReportCreateAPIView(CreateAPIView):
             return Response({"message": "You should first close the file before creating it again"})
 
 
-# class BookReportCreateAPIView(ListAPIView):
-#     queryset = Book.objects.all()
-#     serializer_class = BookSerializer
-#
-#     def retrieve(self, request, *args, **kwargs):
-#         instance = self.get_object()
-#         file_path = instance.e_book.path
-#
-#         if not file_path:
-#             return Response({"message": "Файл отсутствует"})
-#
-#         response = FileResponse(open(file_path, "rb"))
-#         response["Content-Disposition"] = f"attachment; filename={instance.file_field.name}"
-#         return response
+class BookReportListAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsLibrarian]
+
+    def get(self, request):
+        try:
+            directory_path = f"{BASE_DIR}/media/{REPORTS_FOLDER}"
+            file_names = [file for file in os.listdir(directory_path) if
+                          os.path.isfile(os.path.join(directory_path, file))]
+            return Response({"files": file_names})
+        except Exception as e:
+            print(f"Ошибка: {str(e)}")
+
+
+class BookReportDownloadAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsLibrarian]
+
+    def get(self, request, filename, *args, **kwargs):
+        filepath = f"{BASE_DIR}/media/{REPORTS_FOLDER}{filename}"
+
+        print(filepath)
+        if not filepath:
+            return Response({"message": "Файл отсутствует"})
+
+        response = FileResponse(open(filepath, "rb"))
+        response["Content-Disposition"] = f"attachment; filename={filepath}"
+        return response

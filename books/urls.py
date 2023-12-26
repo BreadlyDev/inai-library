@@ -13,6 +13,8 @@ urlpatterns = [
     path("book/create", BooksCreateAPIView.as_view()),
     path("book/all", BooksListAPIView.as_view()),
     path("book/<int:pk>", BooksRetrieveUpdateDeleteAPIView.as_view()),
-    path("ebook/<int:pk>", EBookDownloadView.as_view()),
+    path("ebook/<int:pk>", EBookDownloadAPIView.as_view()),
     path("book/report/create", BookReportCreateAPIView.as_view()),
+    path("book/report/all", BookReportListAPIView.as_view()),
+    path("book/report/<str:filename>", BookReportDownloadAPIView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
