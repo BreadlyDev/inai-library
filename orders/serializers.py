@@ -4,6 +4,7 @@ from .models import Order
 
 class OrderSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField()
+    inventory_number = serializers.ReadOnlyField()
 
     class Meta:
         model = Order
@@ -19,4 +20,4 @@ class LibrarianOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ("status", "due_time")
+        fields = ("inventory_number", "status")
