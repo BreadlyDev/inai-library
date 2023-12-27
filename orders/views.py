@@ -18,20 +18,12 @@ class OrderCreateAPIView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = request.user
         serializer.validated_data["owner"] = user
-        books = serializer.validated_data["books"]
+        book = serializer.validated_data["book"]
 
-        for book in books:
-            if book.quantity <= 0 or not book.is_possible_to_order:
-                return Response({"message": f"К сожалению вы не можете забронировать книгу {book.title} на данный момент"})
+        if book.quantity <= 0 or not book.is_possible_to_order:
+            return Response({"message": f"К сожалению вы не можете забронировать книгу {book.title} на данный момент"})
 
-        order = serializer.save()
-
-        for book in order.books.all():
-            if book.quantity <= 0 or not book.is_possible_to_order:
-                continue
-            book.orders_quantity += 1
-            book.quantity -= 1
-            book.save()
+        serializer.save()
 
         owner_info = {
             "owner_firstname": user.firstname,
@@ -116,9 +108,19 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         ):
             return super().put(request, *args, **kwargs)
 
-        if request.user.status == ROLES[2][1]:
+        if request.user.role == ROLES[1][1]:
             self.serializer_class = LibrarianOrderSerializer
-            return super().put(request, *args, **kwargs)
+            serializer = self.serializer_class(instance=order, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            order = serializer.save()
+
+            if order.status != ORDER_STATUS[0][1] or order.status != ORDER_STATUS[3][1]:
+                book = order.book
+                book.quantity -= 1
+                book.orders_quantity += 1
+                book.save()
+
+            return Response(serializer.data, status=HTTP_200_OK)
 
         return Response(
             {"message": "У вас нет разрешения на изменение этого заказа"},
