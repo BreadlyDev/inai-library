@@ -25,17 +25,6 @@ def validate_edition_year(edition_year):
         raise ValidationError("Книга не могла быть выпущена в будущем")
 
 
-def validate_inventory_number(inventory_number):
-    if (inventory_number[:7] != "INAI.KG"
-            and inventory_number[7:].isdigit()
-            or inventory_number[:5] != "КГФИ."
-            and inventory_number[5:].isdigit()
-    ):
-        raise ValidationError("Неправильный формат инвентарного номера. "
-                              "Инвентарный номер должен начинаться с"
-                              "INAI.KG или КГФИ. и заканчиваться цифрами")
-
-
 class Category(models.Model):
     title = models.CharField(max_length=150)
 
@@ -69,7 +58,6 @@ class Book(models.Model):
     e_book = models.FileField(upload_to=E_BOOKS_FOLDER, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE)
-    inventory_number = models.CharField(max_length=150, null=True, blank=True, validators=[validate_inventory_number])
     language = models.CharField(choices=LANGUAGES, max_length=150)
     edition_year = models.CharField(max_length=4, validators=[validate_edition_year])
     purchase_price = models.CharField(max_length=10, validators=[validate_price])
