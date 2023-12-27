@@ -11,7 +11,7 @@ ROLES = (
 
 def validate_phone(phone):
     if not phone.isdigit():
-        return ValidationError("Номер телефона должен состоять из цифр")
+        raise ValidationError("Номер телефона должен состоять из цифр")
 
 
 def set_password_exist(self, password):
