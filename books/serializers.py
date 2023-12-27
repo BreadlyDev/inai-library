@@ -7,7 +7,6 @@ class BookSerializer(serializers.ModelSerializer):
     orders = serializers.ReadOnlyField()
     reviews = serializers.ReadOnlyField()
     is_possible_to_order = serializers.BooleanField(default=True)
-    inventory_number = serializers.CharField(allow_null=True)
     e_book = serializers.FileField(allow_null=True)
 
     def validate(self, data):

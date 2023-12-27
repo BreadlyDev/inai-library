@@ -98,5 +98,3 @@ def create_report():
     add_styled_paragraph(document=document, text=texts[7], space_before=Inches(1.0))
 
     return document, table
-
-    # document.save("reports/demo.docx")
