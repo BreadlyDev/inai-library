@@ -9,13 +9,6 @@ class BookSerializer(serializers.ModelSerializer):
     is_possible_to_order = serializers.BooleanField(default=True)
     e_book = serializers.FileField(allow_null=True)
 
-    def validate(self, data):
-        if data["inventory_number"] is None and data["e_book"] is None:
-            raise serializers.ValidationError(
-                "Хотя бы одно из полей (Инвентарный номер, электронная книга) должно быть заполнено"
-            )
-        return data
-
     class Meta:
         model = Book
         exclude = ("created_time",)
