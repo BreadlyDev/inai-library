@@ -26,10 +26,10 @@ class UserRegisterAPIView(CreateAPIView):
 
         return Response(
             {
-                'message': 'User registered successfully',
-                'access_token': access_token,
-                'refresh_token': refresh_token,
-                'user': serializer.data,
+                "Сообщение": "Пользователь успешно зарегистрирован",
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "user": serializer.data,
             },
             status=HTTP_201_CREATED
         )
@@ -49,10 +49,10 @@ class UserLoginAPIView(APIView):
         serializer = UserSerializer(user)
 
         if user is None:
-            return Response({"message": "User not found"}, status=400)
+            return Response({"Сообщение": "Пользователь не найден"}, status=400)
 
         if not user.check_password(password):
-            return Response({"message": "Invalid password"}, status=400)
+            return Response({"Сообщение": "Неверный пароль"}, status=400)
 
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
@@ -60,7 +60,7 @@ class UserLoginAPIView(APIView):
 
         return Response(
             {
-                "message": "User logged in successfully",
+                "Сообщение": "Пользователь успешно вошел в систему",
                 "access_token": access_token,
                 "refresh_token": refresh_token,
                 "user": serializer.data,
@@ -76,14 +76,14 @@ class UserLogoutAPIView(APIView):
         refresh_token = request.data.get("refresh_token")
 
         if not refresh_token:
-            return Response({"message": "Отсутствует Refresh токен"}, status=HTTP_400_BAD_REQUEST)
+            return Response({"Сообщение": "Отсутствует Refresh токен"}, status=HTTP_400_BAD_REQUEST)
 
         try:
             RefreshToken(refresh_token).blacklist()
-            return Response({"message": "Пользователь успещно вышел из системы."}, status=HTTP_200_OK)
+            return Response({"Сообщение": "Пользователь успещно вышел из системы."}, status=HTTP_200_OK)
         except Exception as e:
-            return Response({"message": "Неверный токен или токен просрочен.",
-                             "error": e}, status=HTTP_400_BAD_REQUEST)
+            print(e)
+            return Response({"Сообщение": "Неверный токен или токен просрочен."}, status=HTTP_400_BAD_REQUEST)
 
 
 class UserListAPIView(ListAPIView):

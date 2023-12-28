@@ -51,7 +51,7 @@ class ReviewRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
             return super().put(request, *args, **kwargs)
 
         return Response(
-            {"message": "У вас нет разрешения на изменение этого отзыва"},
+            {"Сообщение": "У вас нет разрешения на изменение этого отзыва"},
             status=HTTP_403_FORBIDDEN,
         )
 
@@ -60,10 +60,10 @@ class ReviewRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         if review.author == request.user:
             review.delete()
             return Response(
-                {"message": "Отзыв успешно удален"}, status=HTTP_204_NO_CONTENT
+                {"Сообщение": "Отзыв успешно удален"}, status=HTTP_204_NO_CONTENT
             )
 
         return Response(
-            {"message": "У вас нет разрешения на удаление этого отзыва"},
+            {"Сообщение": "У вас нет разрешения на удаление этого отзыва"},
             status=HTTP_403_FORBIDDEN
         )

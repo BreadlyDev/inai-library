@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from users.permissions import IsLibrarian, IsLibrarianOrStudent
 from .models import Message
 from .serializers import MessageSerializer
+from users.models import ROLES
 
 
 class MessageListAPIView(ListAPIView):
@@ -15,7 +16,7 @@ class MessageListAPIView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        if user.status == "Student":
+        if user.status == ROLES[2][1]:
             return Message.objects.filter(recipient=user)
         return Message.objects.all()
 
@@ -29,12 +30,12 @@ class MessageCreateAPIView(CreateAPIView):
         serializer = MessageSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         recipient = serializer.validated_data.get("recipient")
-        if recipient.status == "Student":
+        if recipient.status == ROLES[2][1]:
             serializer.save()
             return Response(serializer.data, status=HTTP_201_CREATED)
 
         return Response(
-            {'message': 'Вы можете отправлять сообщения только студентам.'},
+            {"Сообщение": "Вы можете отправлять сообщения только студентам."},
             status=HTTP_403_FORBIDDEN
         )
 

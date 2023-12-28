@@ -62,7 +62,7 @@ class BooksCreateAPIView(CreateAPIView):
         serializer.save()
 
         return Response(
-            {"message": "Книга успешно добавлена"}, status=HTTP_201_CREATED
+            {"Сообщение": "Книга успешно добавлена"}, status=HTTP_201_CREATED
         )
 
 
@@ -108,7 +108,7 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         book = self.get_object()
 
         if not book:
-            return Response({"message": "Книга не найдена"}, status=HTTP_404_NOT_FOUND)
+            return Response({"Сообщение": "Книга не найдена"}, status=HTTP_404_NOT_FOUND)
 
         image_path = book.image.name
         if default_storage.exists(image_path):
@@ -120,27 +120,27 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
 
     def put(self, request, *args, **kwargs):
         if self.request.user.status in ["Student", "Admin"]:
-            return Response({"message": "Вы не можете изменить книгу"}, status=HTTP_403_FORBIDDEN)
+            return Response({"Сообщение": "Вы не можете изменить книгу"}, status=HTTP_403_FORBIDDEN)
 
         book = self.get_object()
 
         if not book:
-            return Response({"message": "Книга не найдена"}, status=HTTP_404_NOT_FOUND)
+            return Response({"Сообщение": "Книга не найдена"}, status=HTTP_404_NOT_FOUND)
 
         if book.image != request.data["image"] \
                 and book.image.path != ERROR_404_IMAGE:
             default_storage.delete(book.image.path)
 
-        return Response({"message": "Книга успешно изменена"})
+        return Response({"Сообщение": "Книга успешно изменена"})
 
     def delete(self, request, *args, **kwargs):
         if self.request.user.status in ["Student", "Admin"]:
-            return Response({"message": "Вы не можете удалить книгу"}, status=HTTP_403_FORBIDDEN)
+            return Response({"Сообщение": "Вы не можете удалить книгу"}, status=HTTP_403_FORBIDDEN)
 
         book = self.get_object()
 
         if not book:
-            return Response({"message": "Книга не найдена"}, status=HTTP_404_NOT_FOUND)
+            return Response({"Сообщение": "Книга не найдена"}, status=HTTP_404_NOT_FOUND)
 
         if book.image and book.image.path != ERROR_404_IMAGE:
             default_storage.delete(book.image.path)
@@ -149,7 +149,7 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
             default_storage.delete(book.e_book.path)
 
         book.delete()
-        return Response({"message": "Книга успешно удалена"}, status=HTTP_200_OK)
+        return Response({"Сообщение": "Книга успешно удалена"}, status=HTTP_200_OK)
 
 
 class EBookDownloadAPIView(RetrieveAPIView):
@@ -161,7 +161,7 @@ class EBookDownloadAPIView(RetrieveAPIView):
         file_path = instance.e_book.path
 
         if not file_path:
-            return Response({"message": "Файл отсутствует"})
+            return Response({"Сообщение": "Файл отсутствует"})
 
         response = FileResponse(open(file_path, "rb"))
         response["Content-Disposition"] = f"attachment; filename={instance.file_field.name}"
@@ -195,9 +195,9 @@ class BookReportCreateAPIView(CreateAPIView):
 
             document.save(
                 f"{BASE_DIR}/media/{REPORTS_FOLDER}отчёт_за_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.docx")
-            return Response({"message": "Report created successfully"})
+            return Response({"Сообщение": "Отчет успешно создан"})
         except PermissionError:
-            return Response({"message": "You should first close the file before creating it again"})
+            return Response({"Сообщение": "Вы должны закрыть файл перед его перезаписью"})
 
 
 class BookReportListAPIView(APIView):
@@ -212,7 +212,7 @@ class BookReportListAPIView(APIView):
                 file_list.append(file_dict)
             return Response(file_list)
         except Exception as e:
-            print(f"Ошибка: {str(e)}")
+            print(f"Error: {str(e)}")
 
 
 class BookReportDownloadAPIView(APIView):
@@ -223,7 +223,7 @@ class BookReportDownloadAPIView(APIView):
 
         print(filepath)
         if not filepath:
-            return Response({"message": "Файл отсутствует"})
+            return Response({"Сообщение": "Файл отсутствует"})
 
         response = FileResponse(open(filepath, "rb"))
         response["Content-Disposition"] = f"attachment; filename={filepath}"

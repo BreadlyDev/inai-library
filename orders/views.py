@@ -21,7 +21,7 @@ class OrderCreateAPIView(CreateAPIView):
         book = serializer.validated_data["book"]
 
         if book.quantity <= 0 or not book.is_possible_to_order:
-            return Response({"message": f"К сожалению вы не можете забронировать книгу {book.title} на данный момент"})
+            return Response({"Сообщение": f"К сожалению вы не можете забронировать книгу {book.title} на данный момент"})
 
         serializer.save()
 
@@ -75,9 +75,9 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         user = request.user
         owner_instance = User.objects.get(pk=order.owner_id)
 
-        if user.role == "Student":
+        if user.role == ROLES[2][1]:
             if user.email != owner_instance.email:
-                return Response({"message": "Вы можете просматривать только свои заказы"})
+                return Response({"Сообщение": "Вы можете просматривать только свои заказы"})
 
         if owner_instance:
             owner_info = {
@@ -99,7 +99,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         order = self.get_object()
 
         if order.status not in [status[0] for status in ORDER_STATUS]:
-            return Response({"error": "Неверный статус заказа"})
+            return Response({"Сообщение": "Неверный статус заказа"})
 
         if (
                 request.user.role == ROLES[2][1]
@@ -123,7 +123,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             return Response(serializer.data, status=HTTP_200_OK)
 
         return Response(
-            {"message": "У вас нет разрешения на изменение этого заказа"},
+            {"Сообщение": "У вас нет разрешения на изменение этого заказа"},
             status=HTTP_403_FORBIDDEN,
         )
 
@@ -137,7 +137,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         ):
             order.delete()
             return Response(
-                {"message": "Заказ удален успешно"}, status=HTTP_204_NO_CONTENT
+                {"Сообщение": "Заказ удален успешно"}, status=HTTP_204_NO_CONTENT
             )
 
         if (
@@ -146,9 +146,9 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         ):
             order.delete()
             return Response(
-                {"message": "Заказ удален успешно"}, status=HTTP_204_NO_CONTENT
+                {"Сообщение": "Заказ удален успешно"}, status=HTTP_204_NO_CONTENT
             )
 
         return Response(
-            {"message": "У вас нет разрешения на удаление этого заказа"}, status=HTTP_403_FORBIDDEN
+            {"Сообщение": "У вас нет разрешения на удаление этого заказа"}, status=HTTP_403_FORBIDDEN
         )
