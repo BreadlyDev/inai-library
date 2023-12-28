@@ -6,13 +6,6 @@ from users.models import User
 from books.models import Book
 
 
-def validate_due_date(value):
-    current_date = date.today()
-    next_month = current_date.replace(day=1) + timedelta(days=32)
-    if value > next_month:
-        raise ValidationError("Дата сдачи не может быть позже конца следующего месяца.")
-
-
 def validate_inventory_number(inventory_number):
     if (inventory_number[:7] != "INAI.KG"
             and inventory_number[7:].isdigit()
@@ -40,7 +33,7 @@ class Order(models.Model):
     status = models.CharField(max_length=50, choices=ORDER_STATUS, default=ORDER_STATUS[0][0])
     comment = models.TextField(default="", blank=True)
     created_time = models.DateTimeField(auto_now_add=True)
-    due_time = models.DateField(validators=[validate_due_date])
+    due_time = models.DateField()
 
     class Meta:
         ordering = ["-created_time"]
