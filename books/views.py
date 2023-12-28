@@ -214,16 +214,22 @@ class BookReportListAPIView(APIView):
             print(f"Error: {str(e)}")
 
 
-class BookReportDownloadAPIView(APIView):
+class BookReportDownloadDestroyAPIView(APIView):
     permission_classes = [IsAuthenticated, IsLibrarian]
 
     def get(self, request, filename, *args, **kwargs):
-        filepath = f"{BASE_DIR}/media/{REPORTS_FOLDER}{filename}"
-
-        print(filepath)
-        if not filepath:
+        try:
+            filepath = f"{BASE_DIR}/media/{REPORTS_FOLDER}{filename}"
+            response = FileResponse(open(filepath, "rb"))
+            response["Content-Disposition"] = f"attachment; filename={filepath}"
+            return response
+        except FileNotFoundError:
             return Response({"Сообщение": "Файл отсутствует"})
 
-        response = FileResponse(open(filepath, "rb"))
-        response["Content-Disposition"] = f"attachment; filename={filepath}"
-        return response
+    def delete(self, request, filename, *args, **kwargs):
+        try:
+            filepath = f"{BASE_DIR}/media/{REPORTS_FOLDER}{filename}"
+            default_storage.delete(filepath)
+            return Response({"Сообщение": "Файл успешно удален"})
+        except FileNotFoundError:
+            return Response({"Сообщение": "Файл отсутствует"})
