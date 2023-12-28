@@ -206,8 +206,9 @@ class BookReportListAPIView(APIView):
         try:
             directory_path = f"{BASE_DIR}/media/{REPORTS_FOLDER}"
             file_list = []
-            for file in os.listdir(directory_path):
-                file_dict = {"name": file, "url": f"/media/{REPORTS_FOLDER}{file}"}
+            files = sorted(os.listdir(directory_path), reverse=True)
+            for i, file in enumerate(files):
+                file_dict = {"id": i, "name": file, "url": f"/media/{REPORTS_FOLDER}{file}"}
                 file_list.append(file_dict)
             return Response(file_list)
         except Exception as e:
