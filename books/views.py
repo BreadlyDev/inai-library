@@ -195,7 +195,6 @@ class BookReportCreateAPIView(CreateAPIView):
 
             document.save(
                 f"{BASE_DIR}/media/{REPORTS_FOLDER}отчёт_за_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.docx")
-            print(f"{BASE_DIR}/media/{REPORTS_FOLDER}отчёт_за_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.docx")
             return Response({"message": "Report created successfully"})
         except PermissionError:
             return Response({"message": "You should first close the file before creating it again"})
@@ -207,9 +206,11 @@ class BookReportListAPIView(APIView):
     def get(self, request):
         try:
             directory_path = f"{BASE_DIR}/media/{REPORTS_FOLDER}"
-            file_names = [file for file in os.listdir(directory_path) if
-                          os.path.isfile(os.path.join(directory_path, file))]
-            return Response({"files": file_names})
+            file_list = []
+            for file in os.listdir(directory_path):
+                file_dict = {"name": file, "url": f"/media/{REPORTS_FOLDER}{file}"}
+                file_list.append(file_dict)
+            return Response(file_list)
         except Exception as e:
             print(f"Ошибка: {str(e)}")
 
