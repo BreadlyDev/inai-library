@@ -3,9 +3,9 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from rest_framework.exceptions import ValidationError
 
 ROLES = (
-    ("Администратор", "Администратор"),
-    ("Библиотекарь", "Библиотекарь"),
-    ("Студент", "Студент")
+    ("Admin", "Admin"),
+    ("Librarian", "Librarian"),
+    ("Student", "Student")
 )
 
 
