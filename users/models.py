@@ -3,9 +3,9 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from rest_framework.exceptions import ValidationError
 
 ROLES = (
-    ("Admin", "Admin"),
-    ("Librarian", "Librarian"),
-    ("Student", "Student")
+    ("Администратор", "Администратор"),
+    ("Библиотекарь", "Библиотекарь"),
+    ("Студент", "Студент")
 )
 
 
@@ -24,23 +24,23 @@ class Group(models.Model):
 
     class Meta:
         db_table = "groups"
-        verbose_name = "Group"
-        verbose_name_plural = "Groups"
+        verbose_name = "Группа"
+        verbose_name_plural = "Группы"
 
     def __str__(self):
-        return f"{self.name} group"
+        return f"{self.name} группа"
 
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError("Email is required field")
+            raise ValueError("Email обязательное поле")
 
         email = self.normalize_email(email)
-        role = extra_fields.get("role", "Student")
+        role = extra_fields.get("role", ROLES[2][1])
 
         if role not in dict(ROLES).keys():
-            raise ValueError("Invalid user status")
+            raise ValueError("Неверная роль пользователя")
 
         user = self.model(email=email, **extra_fields)
         user.role = role
@@ -51,7 +51,7 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        extra_fields["role"] = "Admin"
+        extra_fields["role"] = ROLES[0][1]
 
         return self.create_user(email, password, **extra_fields)
 
@@ -79,8 +79,8 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "users"
-        verbose_name = "User"
-        verbose_name_plural = "Users"
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
 
     objects = CustomUserManager()
 
@@ -89,7 +89,7 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         if self.group is None and self.role == ROLES[2][1]:
-            raise ValidationError({"message": "У студентов обязательно должна быть указана группа"})
+            raise ValidationError({"Сообщение": "У студентов обязательно должна быть указана группа"})
         if self.password and not self.password.startswith(("pbkdf2_sha256$", "bcrypt")):
             self.set_password(self.password)
         super().save(*args, **kwargs)

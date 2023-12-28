@@ -30,11 +30,11 @@ class Category(models.Model):
 
     class Meta:
         db_table = "categories"
-        verbose_name = "Category"
-        verbose_name_plural = "Categories"
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
 
     def __str__(self):
-        return f"Category {self.title}"
+        return f"Категория {self.title}"
 
 
 class Subcategory(models.Model):
@@ -43,11 +43,11 @@ class Subcategory(models.Model):
 
     class Meta:
         db_table = "subcategories"
-        verbose_name = "Subcategory"
-        verbose_name_plural = "Subcategories"
+        verbose_name = "Подкатегория"
+        verbose_name_plural = "Подкатегории"
 
     def __str__(self):
-        return f"Subcategory {self.title}"
+        return f"Подкатегория {self.title}"
 
 
 class Book(models.Model):
@@ -73,8 +73,8 @@ class Book(models.Model):
     class Meta:
         ordering = ["reviews_quantity"]
         db_table = "books"
-        verbose_name = "Book"
-        verbose_name_plural = "Books"
+        verbose_name = "Книга"
+        verbose_name_plural = "Книги"
 
     def validate_subcategory(self):
         if self.category != self.subcategory.category:
@@ -84,4 +84,4 @@ class Book(models.Model):
         self.validate_subcategory()
 
     def __str__(self):
-        return f"{self.title} book with id = {self.id}"
+        return f"{self.title} книга"

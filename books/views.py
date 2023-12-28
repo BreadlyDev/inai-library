@@ -8,6 +8,8 @@ from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_2
 from rest_framework.views import APIView
 from django.db.models import Q
 from django.core.files.storage import default_storage
+
+from users.models import ROLES
 from users.permissions import IsLibrarian
 from main.settings import ERROR_404_IMAGE, REPORTS_FOLDER, BASE_DIR
 from .models import Book, Category, Subcategory
@@ -119,7 +121,7 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         return super().get(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
-        if self.request.user.status in ["Student", "Admin"]:
+        if self.request.user.status in [ROLES[2][1], ROLES[0][1]]:
             return Response({"Сообщение": "Вы не можете изменить книгу"}, status=HTTP_403_FORBIDDEN)
 
         book = self.get_object()
@@ -134,7 +136,7 @@ class BooksRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         return Response({"Сообщение": "Книга успешно изменена"})
 
     def delete(self, request, *args, **kwargs):
-        if self.request.user.status in ["Student", "Admin"]:
+        if self.request.user.status in [ROLES[2][1], ROLES[0][1]]:
             return Response({"Сообщение": "Вы не можете удалить книгу"}, status=HTTP_403_FORBIDDEN)
 
         book = self.get_object()

@@ -16,23 +16,9 @@ class Review(models.Model):
     class Meta:
         ordering = ["-created_time"]
         db_table = "reviews"
-        verbose_name = "Review"
-        verbose_name_plural = "Reviews"
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
 
-    # def save(self, *args, **kwargs):
-    #     super(Review, self).save(*args, **kwargs)
-    #
-    #     book = self.book
-    #     reviews = Review.objects.filter(book_id=book)
-    #     total_rating = sum([review.grade for review in reviews if review.grade is not None])
-    #     num_reviews = len(reviews)
-    #
-    #     if num_reviews > 0:
-    #         book.rating = round(total_rating / num_reviews, 2)
-    #     else:
-    #         book.rating = 0
-    #
-    #     book.save()
     def save(self, *args, **kwargs):
         if self.id:
             return
@@ -51,4 +37,4 @@ class Review(models.Model):
         self.book.save()
 
     def __str__(self):
-        return f"Review by {self.author} on {self.book} book"
+        return f"Отзыв от {self.author} на книгу {self.book}"

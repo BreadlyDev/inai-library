@@ -1,7 +1,6 @@
 from django.db import models
 from django.core.validators import ValidationError
 from django.utils import timezone
-from datetime import timedelta, date
 from users.models import User
 from books.models import Book
 
@@ -38,12 +37,12 @@ class Order(models.Model):
     class Meta:
         ordering = ["-created_time"]
         db_table = "orders"
-        verbose_name = "Order"
-        verbose_name_plural = "Orders"
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
 
     def formatted_created_time(self):
         local_time = timezone.localtime(self.created_time)
         return local_time.strftime("%d-%m-%y %H:%M:%S")
 
     def __str__(self):
-        return f"Order by {self.owner} at {self.formatted_created_time()}"
+        return f"Заказ от {self.owner} в {self.formatted_created_time()}"

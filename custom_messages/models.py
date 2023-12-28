@@ -10,6 +10,8 @@ class Message(models.Model):
 
     class Meta:
         ordering = ["-created_time"]
+        verbose_name = "Сообщение"
+        verbose_name_plural = "Сообщения"
         db_table = "messages"
 
     def __str__(self):
