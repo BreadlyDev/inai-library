@@ -114,10 +114,15 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             serializer.is_valid(raise_exception=True)
             order = serializer.save()
 
-            if order.status != ORDER_STATUS[0][1] or order.status != ORDER_STATUS[3][1]:
+            if order.status not in [ORDER_STATUS[0][1], ORDER_STATUS[3][1], ORDER_STATUS[4][1]]:
                 book = order.book
                 book.quantity -= 1
                 book.orders_quantity += 1
+                book.save()
+
+            if order.status == ORDER_STATUS[4][1]:
+                book = order.book
+                book.quantity += 1
                 book.save()
 
             return Response(serializer.data, status=HTTP_200_OK)
