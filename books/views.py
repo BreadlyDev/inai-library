@@ -192,9 +192,10 @@ class BookReportCreateAPIView(CreateAPIView):
                         fill_table(row_cells=row_cells, table_texts=table_texts)
                         j += 1
 
+            report_name = f"отчёт_за_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.docx"
             document.save(
-                f"{BASE_DIR}/media/{REPORTS_FOLDER}отчёт_за_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.docx")
-            return Response({"Сообщение": "Отчет успешно создан"})
+                f"{BASE_DIR}/media/{REPORTS_FOLDER}{report_name}")
+            return Response({"Сообщение": f"Отчет с именем {report_name} успешно создан"})
         except PermissionError:
             return Response({"Сообщение": "Вы должны закрыть файл перед его перезаписью"})
 
