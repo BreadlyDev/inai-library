@@ -185,7 +185,6 @@ class BookReportCreateAPIView(CreateAPIView):
                         table_texts = ["",
                                        str(subcategory.title) if j == 0 else "",
                                        "Очная/компьютерные  технологии" if j == 0 else "",
-                                       str(book.inventory_number),
                                        str(book.quantity),
                                        str(book.author),
                                        str(book.title),
