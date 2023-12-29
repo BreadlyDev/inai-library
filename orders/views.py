@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_204_NO_CONTENT, HTTP_201_CREATED, HTTP_200_OK
 from users.permissions import IsStudent, IsLibrarianOrStudent
 from .models import Order, ORDER_STATUS
-from .serializers import OrderSerializer, LibrarianOrderSerializer
+from .serializers import OrderSerializer, LibrarianOrderSerializer, OrderStatusChangeSerializer
 from users.models import ROLES, User
 
 
@@ -101,12 +101,18 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         if order.status not in [status[0] for status in ORDER_STATUS]:
             return Response({"Сообщение": "Неверный статус заказа"})
 
-        if (
-                request.user.role == ROLES[2][1]
-                and order.status == ORDER_STATUS[0][1]
-                and order.owner == request.user
-        ):
-            return super().put(request, *args, **kwargs)
+        if order.status in [ORDER_STATUS[3][1], ORDER_STATUS[5][1]]:
+            return Response({"Сообщение": "Вы не можете изменить завершенный/отменненый заказ"})
+
+        if order.owner == request.user:
+            if order.status == ORDER_STATUS[0][1]:
+                return super().put(request, *args, **kwargs)
+            if order.status == ORDER_STATUS[3][1]:
+                self.serializer_class = OrderStatusChangeSerializer
+                serializer = self.serializer_class(instance=order, data=request.data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"Сообщение": "Статус заказа успешно изменен"})
 
         if request.user.role == ROLES[1][1]:
             self.serializer_class = LibrarianOrderSerializer
@@ -114,13 +120,13 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             serializer.is_valid(raise_exception=True)
             order = serializer.save()
 
-            if order.status not in [ORDER_STATUS[0][1], ORDER_STATUS[3][1], ORDER_STATUS[4][1]]:
+            if order.status == ORDER_STATUS[2][1]:
                 book = order.book
                 book.quantity -= 1
                 book.orders_quantity += 1
                 book.save()
 
-            if order.status == ORDER_STATUS[4][1]:
+            if order.status == ORDER_STATUS[5][1]:
                 book = order.book
                 book.quantity += 1
                 book.save()
@@ -145,14 +151,14 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
                 {"Сообщение": "Заказ удален успешно"}, status=HTTP_204_NO_CONTENT
             )
 
-        if (
-                request.user.role == ROLES[1][1]
-                and order.status == ORDER_STATUS[2][1]
-        ):
-            order.delete()
-            return Response(
-                {"Сообщение": "Заказ удален успешно"}, status=HTTP_204_NO_CONTENT
-            )
+        # if (
+        #         request.user.role == ROLES[1][1]
+        #         and order.status == ORDER_STATUS[2][1]
+        # ):
+        #     order.delete()
+        #     return Response(
+        #         {"Сообщение": "Заказ удален успешно"}, status=HTTP_204_NO_CONTENT
+        #     )
 
         return Response(
             {"Сообщение": "У вас нет разрешения на удаление этого заказа"}, status=HTTP_403_FORBIDDEN

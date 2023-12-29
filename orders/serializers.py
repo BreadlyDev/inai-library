@@ -4,6 +4,7 @@ from .models import Order
 
 class OrderSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField()
+    status = serializers.ReadOnlyField()
     inventory_number = serializers.ReadOnlyField()
 
     class Meta:
@@ -14,6 +15,12 @@ class OrderSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation["owner"] = instance.owner.email if instance.owner else None
         return representation
+
+
+class OrderStatusChangeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ("status",)
 
 
 class LibrarianOrderSerializer(serializers.ModelSerializer):
