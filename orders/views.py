@@ -104,7 +104,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         if order.status == ORDER_STATUS[3][1]:
             return Response({"Сообщение": "Вы не можете изменить отмененный заказ"})
 
-        if order.status == ORDER_STATUS[5][1]:
+        if order.status == ORDER_STATUS[4][1]:
             return Response({"Сообщение": "Вы не можете изменить завершенный заказ"})
 
         if order.owner == request.user:
@@ -129,7 +129,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
                 book.orders_quantity += 1
                 book.save()
 
-            if order.status == ORDER_STATUS[5][1]:
+            if order.status == ORDER_STATUS[4][1]:
                 book = order.book
                 book.quantity += 1
                 book.save()
@@ -150,7 +150,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         if order.status == ORDER_STATUS[3][1]:
             return Response({"Сообщение": "Вы не можете изменить отмененный заказ"})
 
-        if order.status == ORDER_STATUS[5][1]:
+        if order.status == ORDER_STATUS[4][1]:
             return Response({"Сообщение": "Вы не можете изменить завершенный заказ"})
 
         if order.owner == request.user:
@@ -175,7 +175,7 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
                 book.orders_quantity += 1
                 book.save()
 
-            if order.status == ORDER_STATUS[5][1]:
+            if order.status == ORDER_STATUS[4][1]:
                 book = order.book
                 book.quantity += 1
                 book.save()
