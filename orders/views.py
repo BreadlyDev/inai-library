@@ -101,8 +101,11 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         if order.status not in [status[0] for status in ORDER_STATUS]:
             return Response({"Сообщение": "Неверный статус заказа"})
 
-        if order.status in [ORDER_STATUS[3][1], ORDER_STATUS[5][1]]:
-            return Response({"Сообщение": "Вы не можете изменить завершенный/отменненый заказ"})
+        if order.status == ORDER_STATUS[3][1]:
+            return Response({"Сообщение": "Вы не можете изменить отмененный заказ"})
+
+        if order.status == ORDER_STATUS[5][1]:
+            return Response({"Сообщение": "Вы не можете изменить завершенный заказ"})
 
         if order.owner == request.user:
             if order.status == ORDER_STATUS[0][1]:

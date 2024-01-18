@@ -172,6 +172,7 @@ class EBookDownloadAPIView(RetrieveAPIView):
 
 class BookReportCreateAPIView(CreateAPIView):
     permission_classes = [IsAuthenticated, IsLibrarian]
+    serializer_class = BookSerializer
 
     def post(self, request, *args, **kwargs):
         try:
