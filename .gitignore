@@ -10,3 +10,4 @@ orders/migrations
 custom_messages/migrations
 books/migrations
 new-version/config
+new-version/storage
