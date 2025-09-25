@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"new-version/internal/config"
-	bookCat "new-version/internal/storage/repositories/bookcategory"
+	bc "new-version/internal/domain/book-category"
 	"new-version/internal/storage/sqlite"
 )
 
@@ -17,7 +17,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	bookCatRepo := bookCat.NewBookCatRepo(storage.DB)
+	bookCatRepo := bc.NewBookCatRepo(storage.DB)
 
 	book, err := bookCatRepo.GetById(context.Background(), 1)
 	if err != nil {

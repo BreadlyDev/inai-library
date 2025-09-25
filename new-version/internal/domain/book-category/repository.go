@@ -7,12 +7,6 @@ import (
 	"time"
 )
 
-type BookCat struct {
-	Id          int
-	Title       string
-	CreatedTime time.Time
-}
-
 type BookCatRepo interface {
 	GetById(ctx context.Context, id int) (BookCat, error)
 	Create(ctx context.Context, title string) error
@@ -20,6 +14,12 @@ type BookCatRepo interface {
 	UpdateById(ctx context.Context, id int) error
 	GetByTitle(ctx context.Context, title string) (BookCat, error)
 	GetList(ctx context.Context) ([]BookCat, error)
+}
+
+type BookCat struct {
+	Id          int
+	Title       string
+	CreatedTime time.Time
 }
 
 type SqlBookCatRepo struct {

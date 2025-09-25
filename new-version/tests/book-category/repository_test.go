@@ -2,7 +2,7 @@ package bookcategory_test
 
 import (
 	"context"
-	bc "new-version/internal/storage/repositories/bookcategory"
+	bc "new-version/internal/domain/book-category"
 	"regexp"
 	"testing"
 	"time"
