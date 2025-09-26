@@ -11,7 +11,7 @@ type BookCatRepo interface {
 	GetById(ctx context.Context, id int) (BookCat, error)
 	Create(ctx context.Context, title string) error
 	DeleteById(ctx context.Context, id int) error
-	UpdateById(ctx context.Context, id int) error
+	UpdateById(ctx context.Context, newTitle string, id int) error
 	GetByTitle(ctx context.Context, title string) (BookCat, error)
 	GetList(ctx context.Context) ([]BookCat, error)
 }
@@ -22,16 +22,16 @@ type BookCat struct {
 	CreatedTime time.Time
 }
 
-type SqlBookCatRepo struct {
+type SqliteBookCatRepo struct {
 	db *sql.DB
 }
 
-func NewBookCatRepo(db *sql.DB) *SqlBookCatRepo {
-	return &SqlBookCatRepo{db: db}
+func NewBookCatRepo(db *sql.DB) *SqliteBookCatRepo {
+	return &SqliteBookCatRepo{db: db}
 }
 
-func (b *SqlBookCatRepo) GetById(ctx context.Context, id int) (BookCat, error) {
-	const op = "storage.repositories.bookcategory.GetById"
+func (b *SqliteBookCatRepo) GetById(ctx context.Context, id int) (BookCat, error) {
+	const op = "domain.bookcategory.repository.GetById"
 
 	row := b.db.QueryRowContext(ctx, `SELECT * FROM book_categories WHERE id = $1`, id)
 
@@ -45,8 +45,8 @@ func (b *SqlBookCatRepo) GetById(ctx context.Context, id int) (BookCat, error) {
 	return bookCat, nil
 }
 
-func (b *SqlBookCatRepo) GetByTitle(ctx context.Context, title string) (BookCat, error) {
-	const op = "storage.repositories.bookcategory.GetByTitle"
+func (b *SqliteBookCatRepo) GetByTitle(ctx context.Context, title string) (BookCat, error) {
+	const op = "domain.bookcategory.repository.GetByTitle"
 
 	row := b.db.QueryRowContext(ctx, `SELECT * FROM book_categories WHERE title = $1`, title)
 
@@ -60,8 +60,8 @@ func (b *SqlBookCatRepo) GetByTitle(ctx context.Context, title string) (BookCat,
 	return bookCat, nil
 }
 
-func (b *SqlBookCatRepo) Create(ctx context.Context, title string) error {
-	const op = "storage.repositories.bookcategory.Create"
+func (b *SqliteBookCatRepo) Create(ctx context.Context, title string) error {
+	const op = "domain.bookcategory.repository.Create"
 
 	_, err := b.db.ExecContext(ctx, `INSERT INTO book_categories(title) VALUES ($1)`, title)
 	if err != nil {
@@ -71,8 +71,8 @@ func (b *SqlBookCatRepo) Create(ctx context.Context, title string) error {
 	return nil
 }
 
-func (b *SqlBookCatRepo) UpdateById(ctx context.Context, newTitle string, id int) error {
-	const op = "storage.repositories.bookcategory.Update"
+func (b *SqliteBookCatRepo) UpdateById(ctx context.Context, newTitle string, id int) error {
+	const op = "domain.bookcategory.repository.Update"
 
 	_, err := b.db.ExecContext(ctx, `UPDATE book_categories SET title = $1 WHERE id = $2`, newTitle, id)
 	if err != nil {
@@ -82,8 +82,8 @@ func (b *SqlBookCatRepo) UpdateById(ctx context.Context, newTitle string, id int
 	return nil
 }
 
-func (b *SqlBookCatRepo) GetList(ctx context.Context) ([]BookCat, error) {
-	const op = "storage.repositories.bookcategory.GetList"
+func (b *SqliteBookCatRepo) GetList(ctx context.Context) ([]BookCat, error) {
+	const op = "domain.bookcategory.repository.GetList"
 
 	rows, err := b.db.QueryContext(ctx, `SELECT * FROM book_categories`)
 	if err != nil {
@@ -104,8 +104,8 @@ func (b *SqlBookCatRepo) GetList(ctx context.Context) ([]BookCat, error) {
 	return bookCatList, nil
 }
 
-func (b *SqlBookCatRepo) DeleteById(ctx context.Context, id int) error {
-	const op = "storage.repositories.bookcategory.Delete"
+func (b *SqliteBookCatRepo) DeleteById(ctx context.Context, id int) error {
+	const op = "domain.bookcategory.repository.Delete"
 
 	_, err := b.db.ExecContext(ctx, `DELETE FROM book_categories WHERE id = $1`, id)
 	if err != nil {
