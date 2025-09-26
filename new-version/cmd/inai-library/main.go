@@ -6,7 +6,7 @@ import (
 	"new-version/internal/config"
 	bc "new-version/internal/modules/book-category"
 	"new-version/internal/storage/sqlite"
-	"new-version/utils/logger"
+	"new-version/pkg/logger"
 )
 
 func main() {
@@ -24,8 +24,7 @@ func main() {
 	bcSrv := bc.NewBookCatHandler(log, bcRepo)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /book-category/", bcSrv.CreateCategory)
-	mux.HandleFunc("GET /book-category/{id}", bcSrv.GetCategoryById)
+	bcSrv.RegisterRoutes(mux)
 
 	http.ListenAndServe(":8080", mux)
 }
