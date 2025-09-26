@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	srv "new-version/internal/http-server"
-	"new-version/utils/json"
+	"new-version/pkg/json"
 	"strconv"
 	"time"
 )
@@ -29,6 +29,10 @@ func NewBookCatHandler(log *slog.Logger, repo BookCatRepo) *SqliteBookCatHandler
 		log:  log,
 		repo: repo,
 	}
+}
+
+func RegisterRoutes() {
+
 }
 
 func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
