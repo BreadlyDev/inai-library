@@ -1,12 +1,12 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"log"
+	"net/http"
 	"new-version/internal/config"
 	bc "new-version/internal/domain/book-category"
 	"new-version/internal/storage/sqlite"
+	"new-version/utils/logger"
 )
 
 func main() {
@@ -17,12 +17,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	bookCatRepo := bc.NewBookCatRepo(storage.DB)
+	_ = storage
 
-	book, err := bookCatRepo.GetById(context.Background(), 1)
-	if err != nil {
-		log.Fatal(err)
-	}
+	log := logger.SetupLogger(cfg.Env)
+	bcRepo := bc.NewBookCatRepo(storage.DB)
+	bcSrv := bc.NewBookCatHandler(log, bcRepo)
 
-	fmt.Printf("%d, %s, %s", book.Id, book.Title, book.CreatedTime.UTC().Format("2006-01-02 15:04:05"))
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /book-category/", bcSrv.CreateCategory)
+	mux.HandleFunc("GET /book-category/{id}", bcSrv.GetCategoryById)
+
+	http.ListenAndServe(":8080", mux)
 }
