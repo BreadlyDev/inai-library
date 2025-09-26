@@ -2,7 +2,6 @@ package bookcategory
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 	help "new-version/pkg/http-helpers"
 	"new-version/pkg/json"
@@ -19,13 +18,11 @@ type BookCatHandler interface {
 }
 
 type SqliteBookCatHandler struct {
-	log  *slog.Logger
 	repo BookCatRepo
 }
 
-func NewBookCatHandler(log *slog.Logger, repo BookCatRepo) *SqliteBookCatHandler {
+func NewBookCatHandler(repo BookCatRepo) *SqliteBookCatHandler {
 	return &SqliteBookCatHandler{
-		log:  log,
 		repo: repo,
 	}
 }

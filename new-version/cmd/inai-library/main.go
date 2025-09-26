@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
-	"net/http"
 	"new-version/internal/config"
-	bc "new-version/internal/modules/book-category"
+	httpserver "new-version/internal/http-server"
 	"new-version/internal/storage/sqlite"
 	"new-version/pkg/logger"
+	"os"
+	"time"
 )
 
 func main() {
@@ -17,14 +19,34 @@ func main() {
 		log.Fatal(err)
 	}
 
-	_ = storage
-
 	log := logger.SetupLogger(cfg.Env)
-	bcRepo := bc.NewBookCatRepo(storage.DB)
-	bcSrv := bc.NewBookCatHandler(log, bcRepo)
 
-	mux := http.NewServeMux()
-	bcSrv.RegisterRoutes(mux)
+	done := make(chan os.Signal, 1)
 
-	http.ListenAndServe(":8080", mux)
+	srv := httpserver.NewServer(log, &cfg.HTTPServer, storage)
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			log.Error("failed to start server")
+		}
+	}()
+
+	log.Info("server started")
+
+	<-done
+
+	log.Info("stop server")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Error("failed to stop server", err)
+
+		return
+	}
+
+	defer storage.DB.Close()
+
+	log.Info("server stopped")
 }
