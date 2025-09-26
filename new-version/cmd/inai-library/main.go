@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"new-version/internal/config"
-	bc "new-version/internal/domain/book-category"
+	bc "new-version/internal/modules/book-category"
 	"new-version/internal/storage/sqlite"
 	"new-version/utils/logger"
 )
