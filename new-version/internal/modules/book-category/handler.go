@@ -51,12 +51,13 @@ func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := b.repo.Create(ctx, req.Title); err != nil {
+	id, err := b.repo.Create(ctx, req.Title)
+	if err != nil {
 		json.WriteError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.WriteSuccess(w, "created book category", nil, http.StatusOK)
+	json.WriteSuccess(w, "created book category", id, http.StatusOK)
 }
 
 func (b *SqliteBookCatHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
