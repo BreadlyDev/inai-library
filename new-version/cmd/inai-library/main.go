@@ -41,7 +41,7 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Error("failed to stop server", err)
+		log.Error("failed to stop server: ", err)
 
 		return
 	}
@@ -49,4 +49,13 @@ func main() {
 	defer storage.DB.Close()
 
 	log.Info("server stopped")
+
+	// TODO: Add migrator
+	// TODO: Add swagger
+	// TODO: Refactor project
+	// TODO: Add CORS
+	// TODO: Add other entities
+	// TODO: Add business logic
+	// TODO: Move to Postgres
+	// TODO: Add dockerfile & deploy on ...
 }

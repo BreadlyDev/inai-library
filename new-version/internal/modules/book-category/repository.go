@@ -9,7 +9,7 @@ import (
 
 type BookCatRepo interface {
 	GetById(ctx context.Context, id int) (BookCat, error)
-	Create(ctx context.Context, title string) error
+	Create(ctx context.Context, title string) (int, error)
 	DeleteById(ctx context.Context, id int) error
 	UpdateById(ctx context.Context, newTitle string, id int) error
 	GetByTitle(ctx context.Context, title string) (BookCat, error)
@@ -60,21 +60,31 @@ func (b *SqliteBookCatRepo) GetByTitle(ctx context.Context, title string) (BookC
 	return bookCat, nil
 }
 
-func (b *SqliteBookCatRepo) Create(ctx context.Context, title string) error {
+func (b *SqliteBookCatRepo) Create(ctx context.Context, title string) (int, error) {
 	const op = "domain.bookcategory.repository.Create"
 
-	_, err := b.db.ExecContext(ctx, `INSERT INTO book_categories(title) VALUES ($1)`, title)
+	var id int
+
+	err := b.db.QueryRowContext(
+		ctx,
+		`INSERT INTO book_categories(title) VALUES ($1) RETURNING id`,
+		title,
+	).Scan(&id)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return nil
+	return id, nil
 }
 
 func (b *SqliteBookCatRepo) UpdateById(ctx context.Context, newTitle string, id int) error {
 	const op = "domain.bookcategory.repository.Update"
 
-	_, err := b.db.ExecContext(ctx, `UPDATE book_categories SET title = $1 WHERE id = $2`, newTitle, id)
+	_, err := b.db.ExecContext(
+		ctx,
+		`UPDATE book_categories SET title = $1 WHERE id = $2`,
+		newTitle,
+		id)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -94,7 +104,8 @@ func (b *SqliteBookCatRepo) GetList(ctx context.Context) ([]BookCat, error) {
 
 	for rows.Next() {
 		var bookCat BookCat
-		if err := rows.Scan(&bookCat.Id, &bookCat.Title, &bookCat.CreatedTime); err != nil {
+		err := rows.Scan(&bookCat.Id, &bookCat.Title, &bookCat.CreatedTime)
+		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 

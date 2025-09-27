@@ -21,14 +21,14 @@ func TestBookCategoryRepository_Create(t *testing.T) {
 
 	repo := bc.NewBookCatRepo(db)
 
-	args := "fantasy"
-	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO book_categories(title) VALUES ($1)`)).
-		WithArgs(args).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+	title := "fantasy"
+	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO book_categories(title) VALUES ($1) RETURNING id`)).
+		WithArgs(title).
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
 	ctx := context.Background()
 
-	err = repo.Create(ctx, args)
+	_, err = repo.Create(ctx, title)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
