@@ -36,6 +36,19 @@ func (b *SqliteBookCatHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /book-category/", b.ListCategories)
 }
 
+// CreateCategory adds a new book category to library.
+// @ID createBookCategory
+// @Summary CreateCategory
+// @Tags book-category
+// @Description create book category
+// @Accept json
+// @Produce json
+// @Param req body BookCatRequest true "CatRequest"
+// @Success 200 {object} httphelpers.Response
+// @Failure 400 {object} httphelpers.Response
+// @Failure 500 {object} httphelpers.Response
+// @Failure default {object} httphelpers.Response
+// @Router /book-category/ [post]
 func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	const op = "domain.bookcategory.handler.CreateCategory"
 
@@ -45,8 +58,8 @@ func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Req
 	defer r.Body.Close()
 
 	var req BookCatRequest
-
 	if err := json.ReadRequestBody(r, &req); err != nil {
+
 		json.WriteError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -57,9 +70,22 @@ func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	json.WriteSuccess(w, "created book category", id, http.StatusOK)
+	json.WriteSuccess(w, "created book category", map[string]any{"id": id}, http.StatusOK)
 }
 
+// GetCategoryById gets a book category by id from library.
+// @ID getBookCategoryById
+// @Summary GetCategoryById
+// @Tags book-category
+// @Description get book category by id
+// @Accept json
+// @Produce json
+// @Param id path int true "Category Id"
+// @Success 200 {object} httphelpers.Response
+// @Failure 400 {object} httphelpers.Response
+// @Failure 500 {object} httphelpers.Response
+// @Failure default {object} httphelpers.Response
+// @Router /book-category/{id} [get]
 func (b *SqliteBookCatHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
 	const op = "domain.bookcategory.handler.GetCategoryById"
 
@@ -85,6 +111,19 @@ func (b *SqliteBookCatHandler) GetCategoryById(w http.ResponseWriter, r *http.Re
 	json.WriteSuccess(w, "fetched book category", bc, http.StatusOK)
 }
 
+// GetCategoryByTitle gets a book category by title from library.
+// @ID getBookCategoryTitle
+// @Summary GetCategoryByTitle
+// @Tags book-category
+// @Description get book category by title
+// @Accept json
+// @Produce json
+// @Param title query string true "Category Title"
+// @Success 200 {object} httphelpers.Response
+// @Failure 400 {object} httphelpers.Response
+// @Failure 500 {object} httphelpers.Response
+// @Failure default {object} httphelpers.Response
+// @Router /book-category/title [get]
 func (b *SqliteBookCatHandler) GetCategoryByTitle(w http.ResponseWriter, r *http.Request) {
 	const op = "domain.bookcategory.handler.GetCategoryByTitle"
 
@@ -110,6 +149,20 @@ func (b *SqliteBookCatHandler) GetCategoryByTitle(w http.ResponseWriter, r *http
 	json.WriteSuccess(w, "fetched book category", bc, http.StatusOK)
 }
 
+// UpdateCategoryById updates a book category by id.
+// @ID updateBookCategoryById
+// @Summary UpdateCategoryById
+// @Tags book-category
+// @Description update book category by id
+// @Accept json
+// @Produce json
+// @Param inpur body BookCatRequest true "CatRequest"
+// @Param id path int true "Category Id"
+// @Success 200 {object} httphelpers.Response
+// @Failure 400 {object} httphelpers.Response
+// @Failure 500 {object} httphelpers.Response
+// @Failure default {object} httphelpers.Response
+// @Router /book-category/{id} [patch]
 func (b *SqliteBookCatHandler) UpdateCategoryById(w http.ResponseWriter, r *http.Request) {
 	const op = "domain.bookcategory.handler.UpdateCategoryById"
 
@@ -142,6 +195,19 @@ func (b *SqliteBookCatHandler) UpdateCategoryById(w http.ResponseWriter, r *http
 	json.WriteSuccess(w, "updated book category", nil, http.StatusOK)
 }
 
+// DeleteCategoryById deletes a book category by id from library.
+// @ID deleteBookCategoryById
+// @Summary DeleteCategoryById
+// @Tags book-category
+// @Description delete book category by id
+// @Accept json
+// @Produce json
+// @Param id path int true "Category Id"
+// @Success 200 {object} httphelpers.Response
+// @Failure 400 {object} httphelpers.Response
+// @Failure 500 {object} httphelpers.Response
+// @Failure default {object} httphelpers.Response
+// @Router /book-category/{id} [delete]
 func (b *SqliteBookCatHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
 	const op = "domain.bookcategory.handler.DeleteCategoryById"
 
@@ -167,6 +233,18 @@ func (b *SqliteBookCatHandler) DeleteCategoryById(w http.ResponseWriter, r *http
 	json.WriteSuccess(w, "deleted book category", nil, http.StatusOK)
 }
 
+// ListCategories gets a serie of book categories from library.
+// @ID listBookCategories
+// @Summary ListCategories
+// @Tags book-category
+// @Description get list of book categories
+// @Accept json
+// @Produce json
+// @Success 200 {object} httphelpers.Response
+// @Failure 400 {object} httphelpers.Response
+// @Failure 500 {object} httphelpers.Response
+// @Failure default {object} httphelpers.Response
+// @Router /book-category/ [get]
 func (b *SqliteBookCatHandler) ListCategories(w http.ResponseWriter, r *http.Request) {
 	const op = "domain.bookcategory.handler.ListCategories"
 

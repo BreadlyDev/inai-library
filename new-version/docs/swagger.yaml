@@ -1,0 +1,224 @@
+definitions:
+  bookcategory.BookCatRequest:
+    properties:
+      title:
+        type: string
+    type: object
+  httphelpers.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Server for library application of the university INAI
+  title: INAI Library API
+  version: "2.0"
+paths:
+  /book-category/:
+    get:
+      consumes:
+      - application/json
+      description: get list of book categories
+      operationId: listBookCategories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+      summary: ListCategories
+      tags:
+      - book-category
+    post:
+      consumes:
+      - application/json
+      description: create book category
+      operationId: createBookCategory
+      parameters:
+      - description: CatRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/bookcategory.BookCatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+      summary: CreateCategory
+      tags:
+      - book-category
+  /book-category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete book category by id
+      operationId: deleteBookCategoryById
+      parameters:
+      - description: Category Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+      summary: DeleteCategoryById
+      tags:
+      - book-category
+    get:
+      consumes:
+      - application/json
+      description: get book category by id
+      operationId: getBookCategoryById
+      parameters:
+      - description: Category Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+      summary: GetCategoryById
+      tags:
+      - book-category
+    patch:
+      consumes:
+      - application/json
+      description: update book category by id
+      operationId: updateBookCategoryById
+      parameters:
+      - description: CatRequest
+        in: body
+        name: inpur
+        required: true
+        schema:
+          $ref: '#/definitions/bookcategory.BookCatRequest'
+      - description: Category Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+      summary: UpdateCategoryById
+      tags:
+      - book-category
+  /book-category/title:
+    get:
+      consumes:
+      - application/json
+      description: get book category by title
+      operationId: getBookCategoryTitle
+      parameters:
+      - description: Category Title
+        in: query
+        name: title
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+      summary: GetCategoryByTitle
+      tags:
+      - book-category
+swagger: "2.0"

@@ -11,6 +11,13 @@ import (
 	"time"
 )
 
+// @title INAI Library API
+// @version 2.0
+// @description API Server for library application of the university INAI
+
+// @host localhost:8080
+// @BasePath
+
 func main() {
 	cfg := config.MustLoad()
 
@@ -50,8 +57,6 @@ func main() {
 
 	log.Info("server stopped")
 
-	// TODO: Add migrator
-	// TODO: Add swagger
 	// TODO: Refactor project
 	// TODO: Add CORS
 	// TODO: Add other entities
