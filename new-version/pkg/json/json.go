@@ -32,6 +32,6 @@ func WriteSuccess(w http.ResponseWriter, msg string, data any, code int) {
 }
 
 func WriteError(w http.ResponseWriter, msg string, code int) {
-	resp := help.NewResponse(msg, nil, code)
+	resp := help.NewErrResponse(msg, code)
 	WriteResponseBody(w, resp, code)
 }
