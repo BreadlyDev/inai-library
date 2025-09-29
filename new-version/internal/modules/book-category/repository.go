@@ -3,8 +3,12 @@ package bookcategory
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
+
+	"modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type BookCatRepo interface {
@@ -39,6 +43,10 @@ func (b *SqliteBookCatRepo) GetById(ctx context.Context, id int) (BookCat, error
 
 	err := row.Scan(&bookCat.Id, &bookCat.Title, &bookCat.CreatedTime)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return BookCat{}, fmt.Errorf("%s: no book category category found with id = %d", op, id)
+		}
+
 		return BookCat{}, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -54,6 +62,10 @@ func (b *SqliteBookCatRepo) GetByTitle(ctx context.Context, title string) (BookC
 
 	err := row.Scan(&bookCat.Id, &bookCat.Title, &bookCat.CreatedTime)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return BookCat{}, fmt.Errorf("%s: no book category category found with title = %s", op, title)
+		}
+
 		return BookCat{}, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -71,6 +83,10 @@ func (b *SqliteBookCatRepo) Create(ctx context.Context, title string) (int, erro
 		title,
 	).Scan(&id)
 	if err != nil {
+		if sqliteErr, ok := err.(*sqlite.Error); ok && sqliteErr.Code() == sqlite3.SQLITE_CONSTRAINT_UNIQUE {
+			return 0, fmt.Errorf("%s: book category with title '%s' already exists", op, title)
+		}
+
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -80,12 +96,12 @@ func (b *SqliteBookCatRepo) Create(ctx context.Context, title string) (int, erro
 func (b *SqliteBookCatRepo) UpdateById(ctx context.Context, newTitle string, id int) error {
 	const op = "domain.bookcategory.repository.Update"
 
-	_, err := b.db.ExecContext(
-		ctx,
-		`UPDATE book_categories SET title = $1 WHERE id = $2`,
-		newTitle,
-		id)
+	_, err := b.db.ExecContext(ctx, `UPDATE book_categories SET title = $1 WHERE id = $2`, newTitle, id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("%s: no book category category found with id = %d", op, id)
+		}
+
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -120,6 +136,10 @@ func (b *SqliteBookCatRepo) DeleteById(ctx context.Context, id int) error {
 
 	_, err := b.db.ExecContext(ctx, `DELETE FROM book_categories WHERE id = $1`, id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("%s: no book category category found with id = %d", op, id)
+		}
+
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
