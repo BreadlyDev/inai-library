@@ -2,7 +2,9 @@ package bookcategory
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
+	mw "new-version/internal/http-server/middleware"
 	help "new-version/pkg/http-helpers"
 	"new-version/pkg/json"
 	"time"
@@ -18,6 +20,7 @@ type BookCatHandler interface {
 }
 
 type SqliteBookCatHandler struct {
+	log  *slog.Logger
 	repo BookCatRepo
 }
 
@@ -27,13 +30,15 @@ func NewBookCatHandler(repo BookCatRepo) *SqliteBookCatHandler {
 	}
 }
 
-func (b *SqliteBookCatHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /book-category/", b.CreateCategory)
-	mux.HandleFunc("GET /book-category/{id}", b.GetCategoryById)
-	mux.HandleFunc("PATCH /book-category/{id}", b.UpdateCategoryById)
-	mux.HandleFunc("DELETE /book-category/{id}", b.DeleteCategoryById)
-	mux.HandleFunc("GET /book-category/title", b.GetCategoryByTitle)
-	mux.HandleFunc("GET /book-category/", b.ListCategories)
+func (b *SqliteBookCatHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
+	loggerMw := mw.LoggerMiddleware(log)
+
+	mux.Handle("POST /book-category/", loggerMw(http.HandlerFunc(b.CreateCategory)))
+	mux.Handle("GET /book-category/{id}", loggerMw(http.HandlerFunc(b.GetCategoryById)))
+	mux.Handle("PATCH /book-category/{id}", loggerMw(http.HandlerFunc(b.UpdateCategoryById)))
+	mux.Handle("DELETE /book-category/{id}", loggerMw(http.HandlerFunc(b.DeleteCategoryById)))
+	mux.Handle("GET /book-category/title", loggerMw(http.HandlerFunc(b.GetCategoryByTitle)))
+	mux.Handle("GET /book-category/", loggerMw(http.HandlerFunc(b.ListCategories)))
 }
 
 // CreateCategory adds a new book category to library.
@@ -192,7 +197,7 @@ func (b *SqliteBookCatHandler) UpdateCategoryById(w http.ResponseWriter, r *http
 		return
 	}
 
-	json.WriteSuccess(w, "updated book category", nil, http.StatusOK)
+	json.WriteSuccess(w, "updated book category", map[string]any{"id": id}, http.StatusOK)
 }
 
 // DeleteCategoryById deletes a book category by id from library.
@@ -230,7 +235,7 @@ func (b *SqliteBookCatHandler) DeleteCategoryById(w http.ResponseWriter, r *http
 		return
 	}
 
-	json.WriteSuccess(w, "deleted book category", nil, http.StatusOK)
+	json.WriteSuccess(w, "deleted book category", map[string]any{"id": id}, http.StatusOK)
 }
 
 // ListCategories gets a serie of book categories from library.
