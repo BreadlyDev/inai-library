@@ -19,7 +19,7 @@ func NewServer(log *slog.Logger, cfg *config.HTTPServer, stg *sqlite.Storage) *h
 	bcRepo := bc.NewBookCatRepo(stg.DB)
 	bcHandler := bc.NewBookCatHandler(bcRepo)
 
-	bcHandler.RegisterRoutes(mux)
+	bcHandler.RegisterRoutes(mux, log)
 
 	return &http.Server{
 		Addr:         cfg.Address,
