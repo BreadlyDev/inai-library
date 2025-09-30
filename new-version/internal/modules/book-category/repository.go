@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 
 	"modernc.org/sqlite"
 	sqlite3 "modernc.org/sqlite/lib"
@@ -20,12 +19,6 @@ type BookCatRepo interface {
 	GetList(ctx context.Context) ([]BookCat, error)
 }
 
-type BookCat struct {
-	Id          int
-	Title       string
-	CreatedTime time.Time
-}
-
 type SqliteBookCatRepo struct {
 	db *sql.DB
 }
@@ -35,7 +28,7 @@ func NewBookCatRepo(db *sql.DB) *SqliteBookCatRepo {
 }
 
 func (b *SqliteBookCatRepo) GetById(ctx context.Context, id int) (BookCat, error) {
-	const op = "domain.bookcategory.repository.GetById"
+	const op = "modules.bookcategory.repository.GetById"
 
 	row := b.db.QueryRowContext(ctx, `SELECT * FROM book_categories WHERE id = $1`, id)
 
@@ -54,7 +47,7 @@ func (b *SqliteBookCatRepo) GetById(ctx context.Context, id int) (BookCat, error
 }
 
 func (b *SqliteBookCatRepo) GetByTitle(ctx context.Context, title string) (BookCat, error) {
-	const op = "domain.bookcategory.repository.GetByTitle"
+	const op = "modules.bookcategory.repository.GetByTitle"
 
 	row := b.db.QueryRowContext(ctx, `SELECT * FROM book_categories WHERE title = $1`, title)
 
@@ -73,7 +66,7 @@ func (b *SqliteBookCatRepo) GetByTitle(ctx context.Context, title string) (BookC
 }
 
 func (b *SqliteBookCatRepo) Create(ctx context.Context, title string) (int, error) {
-	const op = "domain.bookcategory.repository.Create"
+	const op = "modules.bookcategory.repository.Create"
 
 	var id int
 
@@ -94,7 +87,7 @@ func (b *SqliteBookCatRepo) Create(ctx context.Context, title string) (int, erro
 }
 
 func (b *SqliteBookCatRepo) UpdateById(ctx context.Context, newTitle string, id int) error {
-	const op = "domain.bookcategory.repository.Update"
+	const op = "modules.bookcategory.repository.Update"
 
 	_, err := b.db.ExecContext(ctx, `UPDATE book_categories SET title = $1 WHERE id = $2`, newTitle, id)
 	if err != nil {
@@ -109,7 +102,7 @@ func (b *SqliteBookCatRepo) UpdateById(ctx context.Context, newTitle string, id 
 }
 
 func (b *SqliteBookCatRepo) GetList(ctx context.Context) ([]BookCat, error) {
-	const op = "domain.bookcategory.repository.GetList"
+	const op = "modules.bookcategory.repository.GetList"
 
 	rows, err := b.db.QueryContext(ctx, `SELECT * FROM book_categories`)
 	if err != nil {
@@ -132,7 +125,7 @@ func (b *SqliteBookCatRepo) GetList(ctx context.Context) ([]BookCat, error) {
 }
 
 func (b *SqliteBookCatRepo) DeleteById(ctx context.Context, id int) error {
-	const op = "domain.bookcategory.repository.Delete"
+	const op = "modules.bookcategory.repository.Delete"
 
 	_, err := b.db.ExecContext(ctx, `DELETE FROM book_categories WHERE id = $1`, id)
 	if err != nil {

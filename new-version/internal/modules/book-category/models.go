@@ -2,6 +2,12 @@ package bookcategory
 
 import "time"
 
+type BookCat struct {
+	Id          int
+	Title       string
+	CreatedTime time.Time
+}
+
 type BasicBookCatResponse struct {
 	Title       string    `json:"title"`
 	CreatedTime time.Time `json:"created_time"`

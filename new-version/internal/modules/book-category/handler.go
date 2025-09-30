@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	mw "new-version/internal/http-server/middleware"
+	"new-version/internal/modules/common"
 	help "new-version/pkg/http-helpers"
 	"new-version/pkg/json"
 	"time"
@@ -55,7 +56,7 @@ func (b *SqliteBookCatHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logg
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/ [post]
 func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
-	const op = "domain.bookcategory.handler.CreateCategory"
+	const op = "modules.bookcategory.handler.CreateCategory"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 
@@ -66,6 +67,11 @@ func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Req
 	if err := json.ReadRequestBody(r, &req); err != nil {
 
 		json.WriteError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if common.ValidateFieldNotEmpty(req.Title) {
+		json.WriteError(w, common.ReqFieldMessage(req.Title), http.StatusBadRequest)
 		return
 	}
 
@@ -92,7 +98,7 @@ func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Req
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/{id} [get]
 func (b *SqliteBookCatHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
-	const op = "domain.bookcategory.handler.GetCategoryById"
+	const op = "modules.bookcategory.handler.GetCategoryById"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 
@@ -130,7 +136,7 @@ func (b *SqliteBookCatHandler) GetCategoryById(w http.ResponseWriter, r *http.Re
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/title [get]
 func (b *SqliteBookCatHandler) GetCategoryByTitle(w http.ResponseWriter, r *http.Request) {
-	const op = "domain.bookcategory.handler.GetCategoryByTitle"
+	const op = "modules.bookcategory.handler.GetCategoryByTitle"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 
@@ -139,9 +145,8 @@ func (b *SqliteBookCatHandler) GetCategoryByTitle(w http.ResponseWriter, r *http
 
 	title := r.URL.Query().Get("title")
 
-	if title == "" {
-		// id must be int
-		json.WriteError(w, "title must not be empty", http.StatusBadRequest)
+	if common.ValidateFieldNotEmpty(title) {
+		json.WriteError(w, common.ReqFieldMessage(title), http.StatusBadRequest)
 		return
 	}
 
@@ -169,7 +174,7 @@ func (b *SqliteBookCatHandler) GetCategoryByTitle(w http.ResponseWriter, r *http
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/{id} [patch]
 func (b *SqliteBookCatHandler) UpdateCategoryById(w http.ResponseWriter, r *http.Request) {
-	const op = "domain.bookcategory.handler.UpdateCategoryById"
+	const op = "modules.bookcategory.handler.UpdateCategoryById"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 
@@ -214,7 +219,7 @@ func (b *SqliteBookCatHandler) UpdateCategoryById(w http.ResponseWriter, r *http
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/{id} [delete]
 func (b *SqliteBookCatHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
-	const op = "domain.bookcategory.handler.DeleteCategoryById"
+	const op = "modules.bookcategory.handler.DeleteCategoryById"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 
@@ -251,7 +256,7 @@ func (b *SqliteBookCatHandler) DeleteCategoryById(w http.ResponseWriter, r *http
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/ [get]
 func (b *SqliteBookCatHandler) ListCategories(w http.ResponseWriter, r *http.Request) {
-	const op = "domain.bookcategory.handler.ListCategories"
+	const op = "modules.bookcategory.handler.ListCategories"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 
