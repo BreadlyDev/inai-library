@@ -17,6 +17,7 @@ type UserModel struct {
 type User struct {
 	Id    uuid.UUID `json:"id"`
 	Email string    `json:"email"`
+	Pass  string    `json:"pass"`
 }
 
 type UserInfo struct {
@@ -29,4 +30,10 @@ type UserInfo struct {
 type UserCreate struct {
 	Email string `json:"email"`
 	Pass  string `json:"pass"`
+}
+
+type UserLogin struct {
+	Email       string `json:"email"`
+	Pass        string `json:"pass"`
+	AccessLevel int    `json:"access_level"`
 }

@@ -52,12 +52,12 @@ func (u *SqliteUserRepo) GetInfoById(ctx context.Context, id uuid.UUID) (UserInf
 	return user, nil
 }
 
-func (u *SqliteUserRepo) GetByTitle(ctx context.Context, email string) (User, error) {
-	const op = "modules.user.repository.GetByTitle"
+func (u *SqliteUserRepo) GetByEmail(ctx context.Context, email string) (User, error) {
+	const op = "modules.user.repository.GetByEmail"
 
 	var user User
 
-	row := u.db.QueryRowContext(ctx, `SELECT id, email FROM users WHERE email = $1`, email)
+	row := u.db.QueryRowContext(ctx, `SELECT id, email, password_hash FROM users WHERE email = $1`, email)
 	if err := row.Scan(&user); err != nil {
 		return User{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -65,8 +65,8 @@ func (u *SqliteUserRepo) GetByTitle(ctx context.Context, email string) (User, er
 	return user, nil
 }
 
-func (u *SqliteUserRepo) GetInfoByTitle(ctx context.Context, email string) (UserInfo, error) {
-	const op = "modules.user.repository.GetInfoByTitle"
+func (u *SqliteUserRepo) GetInfoByEmail(ctx context.Context, email string) (UserInfo, error) {
+	const op = "modules.user.repository.GetInfoByEmail"
 
 	var user UserInfo
 
