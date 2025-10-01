@@ -27,8 +27,8 @@ func ValidatePasswordHasSpecialSymbol(pass string) bool {
 	return strings.Contains(pass, "@#$%&/?.,-_+=)(^;:!")
 }
 
-func FullPasswordValidation(pass string) string {
-	if !ValidatePasswordLength(pass, 10) {
+func ValidatePassword(pass string, passMinLen int) string {
+	if !ValidatePasswordLength(pass, passMinLen) {
 		return fmt.Sprintf("%s", PasswordTooShort(pass))
 	}
 
