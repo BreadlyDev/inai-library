@@ -155,9 +155,9 @@ func (u *SqliteUserService) Login(ctx context.Context, userIn UserLogin) (string
 		return "", fmt.Errorf("wrong password")
 	}
 
-	token, err := u.auth.GenJwtToken()
+	token, err := u.auth.GenJwtToken(userIn)
 
-	return signedToken, nil
+	return token, nil
 }
 
 func (u *SqliteUserService) Logout(ctx context.Context) error {
