@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"new-version/internal/config"
 	mw "new-version/internal/http-server/middleware"
 	"new-version/internal/modules/common"
 	help "new-version/pkg/http-helpers"
@@ -20,26 +21,30 @@ type BookCatHandler interface {
 	GetCategoryByTitle(w http.ResponseWriter, r *http.Request)
 }
 
-type SqliteBookCatHandler struct {
+type BookCatHandlerImpl struct {
 	log  *slog.Logger
 	repo BookCatRepo
+	cfg  *config.Security
 }
 
-func NewBookCatHandler(repo BookCatRepo) *SqliteBookCatHandler {
-	return &SqliteBookCatHandler{
+func NewBookCatHandler(log *slog.Logger, repo BookCatRepo, cfg *config.Security) *BookCatHandlerImpl {
+	return &BookCatHandlerImpl{
+		log:  log,
 		repo: repo,
+		cfg:  cfg,
 	}
 }
 
-func (b *SqliteBookCatHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
-	loggerMw := mw.LoggerMiddleware(log)
+func (b *BookCatHandlerImpl) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
+	logMw := mw.LoggerMiddleware(log)
+	authMw := mw.AuthMiddleware(b.cfg)
 
-	mux.Handle("POST /book-category/", loggerMw(http.HandlerFunc(b.CreateCategory)))
-	mux.Handle("GET /book-category/{id}", loggerMw(http.HandlerFunc(b.GetCategoryById)))
-	mux.Handle("PATCH /book-category/{id}", loggerMw(http.HandlerFunc(b.UpdateCategoryById)))
-	mux.Handle("DELETE /book-category/{id}", loggerMw(http.HandlerFunc(b.DeleteCategoryById)))
-	mux.Handle("GET /book-category/title", loggerMw(http.HandlerFunc(b.GetCategoryByTitle)))
-	mux.Handle("GET /book-category/", loggerMw(http.HandlerFunc(b.ListCategories)))
+	mux.Handle("POST /book-category/", authMw(logMw(http.HandlerFunc(b.CreateCategory)), common.USER_ACCESS_LEVEL))
+	mux.Handle("GET /book-category/{id}", authMw(logMw(http.HandlerFunc(b.GetCategoryById)), common.USER_ACCESS_LEVEL))
+	mux.Handle("PATCH /book-category/{id}", authMw(logMw(http.HandlerFunc(b.UpdateCategoryById)), common.USER_ACCESS_LEVEL))
+	mux.Handle("DELETE /book-category/{id}", authMw(logMw(http.HandlerFunc(b.DeleteCategoryById)), common.ADMIN_ACCESS_LEVEL))
+	mux.Handle("GET /book-category/title", logMw(http.HandlerFunc(b.GetCategoryByTitle)))
+	mux.Handle("GET /book-category/", logMw(http.HandlerFunc(b.ListCategories)))
 }
 
 // CreateCategory adds a new book category to library.
@@ -55,7 +60,7 @@ func (b *SqliteBookCatHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logg
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/ [post]
-func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
+func (b *BookCatHandlerImpl) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.CreateCategory"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -97,7 +102,7 @@ func (b *SqliteBookCatHandler) CreateCategory(w http.ResponseWriter, r *http.Req
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/{id} [get]
-func (b *SqliteBookCatHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
+func (b *BookCatHandlerImpl) GetCategoryById(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.GetCategoryById"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -135,7 +140,7 @@ func (b *SqliteBookCatHandler) GetCategoryById(w http.ResponseWriter, r *http.Re
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/title [get]
-func (b *SqliteBookCatHandler) GetCategoryByTitle(w http.ResponseWriter, r *http.Request) {
+func (b *BookCatHandlerImpl) GetCategoryByTitle(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.GetCategoryByTitle"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -173,7 +178,7 @@ func (b *SqliteBookCatHandler) GetCategoryByTitle(w http.ResponseWriter, r *http
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/{id} [patch]
-func (b *SqliteBookCatHandler) UpdateCategoryById(w http.ResponseWriter, r *http.Request) {
+func (b *BookCatHandlerImpl) UpdateCategoryById(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.UpdateCategoryById"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -218,7 +223,7 @@ func (b *SqliteBookCatHandler) UpdateCategoryById(w http.ResponseWriter, r *http
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/{id} [delete]
-func (b *SqliteBookCatHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
+func (b *BookCatHandlerImpl) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.DeleteCategoryById"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -255,7 +260,7 @@ func (b *SqliteBookCatHandler) DeleteCategoryById(w http.ResponseWriter, r *http
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/ [get]
-func (b *SqliteBookCatHandler) ListCategories(w http.ResponseWriter, r *http.Request) {
+func (b *BookCatHandlerImpl) ListCategories(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.ListCategories"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
