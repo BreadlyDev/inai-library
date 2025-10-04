@@ -20,11 +20,11 @@ func ValidatePasswordHasNumber(pass string) bool {
 }
 
 func ValidatePasswordHasCapitalizedLetter(pass string) bool {
-	return strings.Contains(pass, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	return strings.ContainsAny(pass, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 }
 
 func ValidatePasswordHasSpecialSymbol(pass string) bool {
-	return strings.Contains(pass, "@#$%&/?.,-_+=)(^;:!")
+	return strings.ContainsAny(pass, "@#$%&/?.,-_+=)(^;:!")
 }
 
 func ValidatePassword(pass string, passMinLen int) string {

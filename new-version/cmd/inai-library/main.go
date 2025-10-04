@@ -30,7 +30,7 @@ func main() {
 
 	done := make(chan os.Signal, 1)
 
-	srv := httpserver.NewServer(log, &cfg.HTTPServer, storage)
+	srv := httpserver.NewServer(log, cfg, storage)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {

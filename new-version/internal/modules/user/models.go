@@ -25,6 +25,7 @@ type UserInfo struct {
 	Email       string    `json:"email"`
 	JoinedIn    time.Time `json:"joined_in"`
 	AccessLevel int       `json:"access_level"`
+	Pass        string    `json:"pass"`
 }
 
 type UserCreate struct {
@@ -33,6 +34,11 @@ type UserCreate struct {
 }
 
 type UserLogin struct {
+	Email string `json:"email"`
+	Pass  string `json:"pass"`
+}
+
+type UserLoginResp struct {
 	Email       string `json:"email"`
 	Pass        string `json:"pass"`
 	AccessLevel int    `json:"access_level"`

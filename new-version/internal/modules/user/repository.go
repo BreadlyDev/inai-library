@@ -44,7 +44,7 @@ func (u *SqliteUserRepo) GetInfoById(ctx context.Context, id uuid.UUID) (UserInf
 
 	var user UserInfo
 
-	row := u.db.QueryRowContext(ctx, `SELECT id, email, joined_in, access_level FROM users WHERE id = $1`, id)
+	row := u.db.QueryRowContext(ctx, `SELECT id, email, joined_at, access_level FROM users WHERE id = $1`, id)
 	if err := row.Scan(&user); err != nil {
 		return UserInfo{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -57,8 +57,8 @@ func (u *SqliteUserRepo) GetByEmail(ctx context.Context, email string) (User, er
 
 	var user User
 
-	row := u.db.QueryRowContext(ctx, `SELECT id, email, password_hash FROM users WHERE email = $1`, email)
-	if err := row.Scan(&user); err != nil {
+	row := u.db.QueryRowContext(ctx, `SELECT id, email, pass_hash FROM users WHERE email = $1`, email)
+	if err := row.Scan(&user.Id, &user.Email, &user.Pass); err != nil {
 		return User{}, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -71,8 +71,8 @@ func (u *SqliteUserRepo) GetInfoByEmail(ctx context.Context, email string) (User
 	var user UserInfo
 
 	row := u.db.QueryRowContext(ctx,
-		`SELECT id, email, joined_in, access_level FROM users WHERE email = $1`, email)
-	if err := row.Scan(&user); err != nil {
+		`SELECT id, email, joined_at, access_level, pass_hash FROM users WHERE email = $1`, email)
+	if err := row.Scan(&user.Id, &user.Email, &user.JoinedIn, &user.AccessLevel, &user.Pass); err != nil {
 		return UserInfo{}, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -85,7 +85,7 @@ func (u *SqliteUserRepo) Create(ctx context.Context, userIn UserCreate) (uuid.UU
 	var id uuid.UUID
 
 	row := u.db.QueryRowContext(ctx,
-		`INSERT INTO users(email, pass_hash) VALUES($1, $2) RETURNIN id`, userIn.Email, userIn.Pass)
+		`INSERT INTO users(email, pass_hash) VALUES($1, $2) RETURNING id`, userIn.Email, userIn.Pass)
 	if err := row.Scan(&id); err != nil {
 		return uuid.UUID{}, fmt.Errorf("%s: %w", op, err)
 	}
