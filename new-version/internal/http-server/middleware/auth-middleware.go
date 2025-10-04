@@ -2,30 +2,37 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
+	"new-version/internal/config"
+	"new-version/internal/modules/common"
 )
 
-func AuthMiddleware() func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
+func AuthMiddleware(cfg *config.Security) func(next http.Handler, level common.AccessLevel) http.Handler {
+	return func(next http.Handler, level common.AccessLevel) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			auth := r.Header.Get("Authorization")
-			if auth == "" {
-				http.Error(w, "missing authorization header", http.StatusUnauthorized)
+			tc, err := r.Cookie("access_token")
+			if err != nil || tc.Value == "" {
+				http.Error(w, "missing or empty token", http.StatusUnauthorized)
 				return
 			}
 
-			authParts := strings.SplitN(auth, " ", 2)
-			if len(authParts) != 2 || authParts[0] != "Bearer" {
-				http.Error(w, "invalid header authorization format", http.StatusUnauthorized)
+			claims, err := common.ValidateJwt(cfg, tc.Value)
+			if err != nil {
+				http.Error(w, "invalid token", http.StatusUnauthorized)
 				return
 			}
 
-			if authParts[0] == "" {
-				http.Error(w, "empty token", http.StatusUnauthorized)
+			lvlFloat, ok := claims["access_level"].(float64)
+			if !ok {
+				http.Error(w, "invalid access level", http.StatusUnauthorized)
 				return
 			}
 
-			// TODO: finish the function
+			lvl := common.AccessLevel(int(lvlFloat))
+
+			if lvl < level {
+				http.Error(w, "no permission for action", http.StatusForbidden)
+				return
+			}
 
 			next.ServeHTTP(w, r)
 		})
