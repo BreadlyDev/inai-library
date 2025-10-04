@@ -12,6 +12,20 @@ definitions:
       status:
         type: integer
     type: object
+  user.UserCreate:
+    properties:
+      email:
+        type: string
+      pass:
+        type: string
+    type: object
+  user.UserLogin:
+    properties:
+      email:
+        type: string
+      pass:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -221,4 +235,100 @@ paths:
       summary: GetCategoryByTitle
       tags:
       - book-category
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: login user
+      operationId: loginUser
+      parameters:
+      - description: UserLogin
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+      summary: Login
+      tags:
+      - user
+  /user/logout:
+    post:
+      description: logout user
+      operationId: logoutUser
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+      summary: Logout
+      tags:
+      - user
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: register a new user
+      operationId: registerUser
+      parameters:
+      - description: UserCreate
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httphelpers.Response'
+      summary: Register
+      tags:
+      - user
 swagger: "2.0"
