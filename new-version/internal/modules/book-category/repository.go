@@ -79,7 +79,7 @@ func (b *SqliteBookCatRepo) Create(ctx context.Context, title string) (int, erro
 		if sqliteErr, ok := err.(*sqlite.Error); ok && sqliteErr.Code() == sqlite3.SQLITE_CONSTRAINT_UNIQUE {
 			return 0, fmt.Errorf("%s: book category with title '%s' already exists", op, title)
 		}
-
+		
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 

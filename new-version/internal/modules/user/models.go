@@ -10,7 +10,7 @@ type UserModel struct {
 	Id          uuid.UUID `json:"id"`
 	Email       string    `json:"email"`
 	PassHash    string    `json:"pass_hash"`
-	JoinedIn    time.Time `json:"joined_in"`
+	JoinedAt    time.Time `json:"joined_in"`
 	AccessLevel int       `json:"access_level"`
 }
 
@@ -23,7 +23,7 @@ type User struct {
 type UserInfo struct {
 	Id          uuid.UUID `json:"id"`
 	Email       string    `json:"email"`
-	JoinedIn    time.Time `json:"joined_in"`
+	JoinedAt    time.Time `json:"joined_in"`
 	AccessLevel int       `json:"access_level"`
 	Pass        string    `json:"pass"`
 }
