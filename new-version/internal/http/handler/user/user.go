@@ -8,9 +8,11 @@ import (
 	"new-version/internal/config"
 	"new-version/internal/contract/user"
 	userDto "new-version/internal/contract/user"
-	mw "new-version/internal/http-server/middleware"
-	"new-version/pkg/httphelpers"
+	authMwr "new-version/internal/http/middleware/auth"
+	logMwr "new-version/internal/http/middleware/logger"
+
 	userSvc "new-version/internal/service/user"
+	"new-version/pkg/httphelpers"
 	"new-version/pkg/json"
 	"time"
 )
@@ -28,8 +30,8 @@ type DefaultHandler struct {
 }
 
 func (u *DefaultHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
-	logMw := mw.LoggerMiddleware(log)
-	authMw := mw.AuthMiddleware(u.cfg)
+	logMw := logMwr.LoggerMiddleware(log)
+	authMw := authMwr.AuthMiddleware(u.cfg)
 
 	mux.Handle("POST /user/register", logMw(http.HandlerFunc(u.RegisterUser)))
 	mux.Handle("POST /user/login", logMw(http.HandlerFunc(u.LoginUser)))

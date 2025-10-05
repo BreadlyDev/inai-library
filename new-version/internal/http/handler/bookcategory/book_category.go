@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"new-version/internal/config"
 	bookCatDto "new-version/internal/contract/bookcategory"
-	mw "new-version/internal/http-server/middleware"
+	authMwr "new-version/internal/http/middleware/auth"
+	logMwr "new-version/internal/http/middleware/logger"
 	bookCatRepo "new-version/internal/repository/bookcategory"
 	"new-version/internal/validator/common"
 
@@ -43,8 +44,8 @@ func New(
 }
 
 func (b *DefaultHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
-	logMw := mw.LoggerMiddleware(log)
-	authMw := mw.AuthMiddleware(b.cfg)
+	logMw := logMwr.LoggerMiddleware(log)
+	authMw := authMwr.AuthMiddleware(b.cfg)
 
 	mux.Handle("POST /book-category/",
 		authMw(logMw(http.HandlerFunc(b.CreateCategory)), httphelpers.USER_LVL))
