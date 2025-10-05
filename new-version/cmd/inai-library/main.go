@@ -5,7 +5,7 @@ import (
 	"log"
 	"new-version/internal/config"
 	httpserver "new-version/internal/http/server"
-	"new-version/internal/storage/sqlite"
+	"new-version/internal/storage/postgres"
 	"new-version/pkg/logger"
 	"os"
 	"time"
@@ -21,7 +21,7 @@ import (
 func main() {
 	cfg := config.MustLoad()
 
-	storage, err := sqlite.New(cfg.StoragePath)
+	storage, err := postgres.New(&cfg.Database)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,7 +53,7 @@ func main() {
 		return
 	}
 
-	defer storage.DB.Close()
+	defer storage.DB().Close()
 
 	log.Info("server stopped")
 

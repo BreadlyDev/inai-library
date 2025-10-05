@@ -11,7 +11,7 @@ import (
 	authSvc "new-version/internal/service/auth"
 	userSvc "new-version/internal/service/user"
 
-	"new-version/internal/storage/sqlite"
+	"new-version/internal/storage/postgres"
 
 	"github.com/rs/cors"
 	swagger "github.com/swaggo/http-swagger"
@@ -19,7 +19,7 @@ import (
 	_ "new-version/docs"
 )
 
-func New(log *slog.Logger, cfg *config.Config, stg *sqlite.Storage) *http.Server {
+func New(log *slog.Logger, cfg *config.Config, stg *postgres.Storage) *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/swagger/", swagger.WrapHandler)
 
@@ -32,12 +32,12 @@ func New(log *slog.Logger, cfg *config.Config, stg *sqlite.Storage) *http.Server
 	})
 	handler := c.Handler(mux)
 
-	bcRepo := bookCatRepo.New(stg.DB)
+	bcRepo := bookCatRepo.New(stg.DB())
 	bcHandler := bookCatHdl.New(log, bcRepo, &cfg.Security)
 	bcHandler.RegisterRoutes(mux, log)
 
 	aSvc := authSvc.New(log, &cfg.Security)
-	uRepo := userRepo.New(stg.DB)
+	uRepo := userRepo.New(stg.DB())
 	uSrv := userSvc.New(log, uRepo, aSvc, &cfg.Security)
 	uHandler := userHdl.New(log, uSrv, &cfg.Security)
 	uHandler.RegisterRoutes(mux, log)

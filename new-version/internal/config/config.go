@@ -15,6 +15,15 @@ type Config struct {
 	HTTPServer  `yaml:"http_server"`
 	Pagination  `yaml:"pagination"`
 	Security    `yaml:"security"`
+	Database    `yaml:"database"`
+}
+
+type Database struct {
+	Host     string `yaml:"db_host"`
+	Port     int    `yaml:"db_port"`
+	Name     string `yaml:"db_name"`
+	User     string `yaml:"db_user"`
+	Password string `yaml:"db_password"`
 }
 
 type HTTPServer struct {
