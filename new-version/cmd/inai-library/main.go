@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 	"new-version/internal/config"
-	httpserver "new-version/internal/http-server"
+	httpserver "new-version/internal/http/server"
 	"new-version/internal/storage/sqlite"
 	"new-version/pkg/logger"
 	"os"
@@ -30,7 +30,7 @@ func main() {
 
 	done := make(chan os.Signal, 1)
 
-	srv := httpserver.NewServer(log, cfg, storage)
+	srv := httpserver.New(log, cfg, storage)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {

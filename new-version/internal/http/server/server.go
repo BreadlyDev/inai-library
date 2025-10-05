@@ -19,7 +19,7 @@ import (
 	_ "new-version/docs"
 )
 
-func NewServer(log *slog.Logger, cfg *config.Config, stg *sqlite.Storage) *http.Server {
+func New(log *slog.Logger, cfg *config.Config, stg *sqlite.Storage) *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/swagger/", swagger.WrapHandler)
 
