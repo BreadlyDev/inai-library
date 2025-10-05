@@ -2,7 +2,8 @@ package bookcategory_test
 
 import (
 	"context"
-	bc "new-version/internal/modules/book-category"
+	bookCatDto "new-version/internal/contract/bookcategory"
+	bookCatRepo "new-version/internal/repository/bookcategory"
 	"regexp"
 	"testing"
 	"time"
@@ -18,17 +19,18 @@ func TestBookCategoryRepository_Create(t *testing.T) {
 	}
 
 	defer db.Close()
+	repo := bookCatRepo.New(db)
 
-	repo := bc.NewBookCatRepo(db)
-
-	title := "fantasy"
+	req := bookCatDto.Request{
+		Title: "fantasy",
+	}
 	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO book_categories(title) VALUES ($1) RETURNING id`)).
-		WithArgs(title).
+		WithArgs(req.Title).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
 	ctx := context.Background()
 
-	_, err = repo.Create(ctx, title)
+	_, err = repo.Create(ctx, req)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -45,7 +47,7 @@ func TestBookCategoryRepository_GetById(t *testing.T) {
 	}
 	defer db.Close()
 
-	repo := bc.NewBookCatRepo(db)
+	repo := bookCatRepo.New(db)
 
 	id := 1
 	title := "fantasy"
@@ -75,7 +77,7 @@ func TestBookCategoryRepository_GetByTitle(t *testing.T) {
 	}
 	defer db.Close()
 
-	repo := bc.NewBookCatRepo(db)
+	repo := bookCatRepo.New(db)
 
 	id := 1
 	title := "fantasy"
@@ -114,7 +116,7 @@ func TestBookCategoryRepository_DeleteById(t *testing.T) {
 		WithArgs(id).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	repo := bc.NewBookCatRepo(db)
+	repo := bookCatRepo.New(db)
 	ctx := context.Background()
 
 	err = repo.DeleteById(ctx, id)
@@ -140,17 +142,19 @@ func TestBookCategoryRepository_UpdateById(t *testing.T) {
 
 	mock.NewRows([]string{"id", "title", "created_time"}).AddRow(id, title, tn)
 
-	newTitle := "mystery"
+	req := bookCatDto.Request{
+		Title: "mistery",
+	}
 
 	mock.ExpectExec(regexp.QuoteMeta(`UPDATE book_categories SET title = $1 WHERE id = $2`)).
-		WithArgs(newTitle, id).
+		WithArgs(req.Title, id).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	repo := bc.NewBookCatRepo(db)
+	repo := bookCatRepo.New(db)
 
 	ctx := context.Background()
 
-	err = repo.UpdateById(ctx, newTitle, id)
+	err = repo.UpdateById(ctx, req, id)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -168,7 +172,7 @@ func TestBookCategoryRepository_GetList(t *testing.T) {
 	defer db.Close()
 
 	tn := time.Now()
-	bookCatList := []bc.BookCat{
+	bookCatList := []bookCatDto.Response{
 		{Id: 1, Title: "fantasy", CreatedTime: tn},
 		{Id: 2, Title: "mistery", CreatedTime: tn.Add(10 * time.Second)},
 		{Id: 3, Title: "fiction", CreatedTime: tn.Add(20 * time.Second)},
@@ -183,7 +187,7 @@ func TestBookCategoryRepository_GetList(t *testing.T) {
 
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM book_categories`)).WillReturnRows(rows)
 
-	repo := bc.NewBookCatRepo(db)
+	repo := bookCatRepo.New(db)
 
 	ctx := context.Background()
 	bookCats, err := repo.GetList(ctx)

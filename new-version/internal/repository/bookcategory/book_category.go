@@ -90,7 +90,7 @@ func (b *DefaultRepository) Create(ctx context.Context, bookCat bookcategory.Req
 func (b *DefaultRepository) UpdateById(ctx context.Context, bookCat bookcategory.Request, id int) error {
 	const op = "modules.bookcategory.repository.Update"
 
-	_, err := b.db.ExecContext(ctx, `UPDATE book_categories SET title = $1 WHERE id = $2`, bookCat, id)
+	_, err := b.db.ExecContext(ctx, `UPDATE book_categories SET title = $1 WHERE id = $2`, bookCat.Title, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return fmt.Errorf("%s: no book category category with id = %d", op, id)
