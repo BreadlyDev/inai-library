@@ -39,7 +39,7 @@ func (u *SqliteUserRepo) GetById(ctx context.Context, id uuid.UUID) (User, error
 	row := u.db.QueryRowContext(ctx, `SELECT id, email FROM users WHERE id = $1`, id)
 	if err := row.Scan(&user); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return UserInfo{}, fmt.Errorf("%s: user with this id does not exist", op)
+			return User{}, fmt.Errorf("%s: user with this id does not exist", op)
 		}
 
 		return User{}, fmt.Errorf("%s: %w", op, err)
@@ -92,7 +92,7 @@ func (u *SqliteUserRepo) GetInfoByEmail(ctx context.Context, email string) (User
 	row := u.db.QueryRowContext(ctx,
 		`SELECT id, email, joined_at, access_level, pass_hash FROM users WHERE email = $1`, email)
 	if err := row.Scan(
-		&user.Id, &user.Email, &user.JoinedAt, &user.AccessLevel, &user.Pass
+		&user.Id, &user.Email, &user.JoinedAt, &user.AccessLevel, &user.Pass,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return UserInfo{}, fmt.Errorf("%s: user with this email does not exist", op)
@@ -128,8 +128,7 @@ func (u *SqliteUserRepo) Create(ctx context.Context, userIn UserCreate) error {
 	_, err := u.db.ExecContext(ctx,
 		`INSERT INTO users(id, email, pass_hash) VALUES($1, $2, $3)`, uuid.New(), userIn.Email, userIn.Pass)
 	if err != nil {
-		if sqliteErr, ok := err.(*sqlite.Error); 
-			ok && sqliteErr.Code() == sqlite3.SQLITE_CONSTRAINT_UNIQUE {
+		if sqliteErr, ok := err.(*sqlite.Error); ok && sqliteErr.Code() == sqlite3.SQLITE_CONSTRAINT_UNIQUE {
 			return fmt.Errorf("%s: user with this email '%s' already exists", op, userIn.Email)
 		}
 
