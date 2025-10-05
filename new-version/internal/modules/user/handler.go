@@ -68,13 +68,13 @@ func (u *UserHandlerImpl) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := u.srv.Register(ctx, req)
+	err := u.srv.Register(ctx, req)
 	if err != nil {
 		json.WriteError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.WriteSuccess(w, "registered user", map[string]string{"id": id.String()}, http.StatusCreated)
+	json.WriteSuccess(w, "user has been registered", nil , http.StatusCreated)
 }
 
 // Login allows a user to sign in and get permissions.

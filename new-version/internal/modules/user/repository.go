@@ -16,8 +16,8 @@ type UserRepo interface {
 	GetInfoById(ctx context.Context, id uuid.UUID) (UserInfo, error)
 	GetByEmail(ctx context.Context, email string) (User, error)
 	GetInfoByEmail(ctx context.Context, email string) (UserInfo, error)
-	GetPassByEmail(ctx context.Context, email string) (string, error)
-	Create(ctx context.Context, userIn UserCreate) (uuid.UUID, error)
+	GetPasswordByEmail(ctx context.Context, email string) (string, error)
+	Create(ctx context.Context, userIn UserCreate) error
 }
 
 type SqliteUserRepo struct {

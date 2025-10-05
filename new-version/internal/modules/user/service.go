@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"log/slog"
 	"new-version/internal/config"
-
-	"github.com/google/uuid"
 )
 
 type UserService interface {
 	Login(ctx context.Context, userIn UserLogin) (string, error)
-	Register(ctx context.Context, userIn UserCreate) (uuid.UUID, error)
+	Register(ctx context.Context, userIn UserCreate) error
 }
 
 type UserServiceImpl struct {
@@ -30,31 +28,31 @@ func NewUserService(log *slog.Logger, repo UserRepo, auth AuthService, cfg *conf
 	}
 }
 
-func (u *UserServiceImpl) Register(ctx context.Context, userIn UserCreate) (uuid.UUID, error) {
+func (u *UserServiceImpl) Register(ctx context.Context, userIn UserCreate) error {
 	const op = "modules.user.service.Register"
 
 	if !ValidateEmailFormat(userIn.Email) {
-		return uuid.UUID{}, fmt.Errorf("%s", WrongEmailFormat(userIn.Email))
+		return fmt.Errorf("%s", WrongEmailFormat(userIn.Email))
 	}
 
 	if res := ValidatePassword(userIn.Pass, u.cfg.PasswordMinLen); res != "" {
-		return uuid.UUID{}, fmt.Errorf("%s", res)
+		return fmt.Errorf("%s", res)
 	}
 
 	pass, err := u.auth.HashPass(userIn.Pass)
 	if err != nil {
-		return uuid.UUID{}, fmt.Errorf("%s: %w", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	userIn.Pass = pass
 
-	id, err := u.repo.Create(ctx, userIn)
+	err = u.repo.Create(ctx, userIn)
 	if err != nil {
 		u.log.Error("%s: %w", op, err)
-		return id, fmt.Errorf("%s: %w", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	return id, nil
+	return nil
 }
 
 func (u *UserServiceImpl) Login(ctx context.Context, userIn UserLogin) (string, error) {
