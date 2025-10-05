@@ -20,7 +20,7 @@ func New(storagePath string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	query, err := os.ReadFile("./db-init/schema.sql")
+	query, err := os.ReadFile("./database/schema.sql")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

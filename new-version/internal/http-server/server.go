@@ -4,8 +4,13 @@ import (
 	"log/slog"
 	"net/http"
 	"new-version/internal/config"
-	bc "new-version/internal/modules/book-category"
-	"new-version/internal/modules/user"
+	bookCatHdl "new-version/internal/http/handler/bookcategory"
+	userHdl "new-version/internal/http/handler/user"
+	bookCatRepo "new-version/internal/repository/bookcategory"
+	userRepo "new-version/internal/repository/user"
+	authSvc "new-version/internal/service/auth"
+	userSvc "new-version/internal/service/user"
+
 	"new-version/internal/storage/sqlite"
 
 	"github.com/rs/cors"
@@ -27,14 +32,14 @@ func NewServer(log *slog.Logger, cfg *config.Config, stg *sqlite.Storage) *http.
 	})
 	handler := c.Handler(mux)
 
-	bcRepo := bc.NewBookCatRepo(stg.DB)
-	bcHandler := bc.NewBookCatHandler(log, bcRepo, &cfg.Security)
+	bcRepo := bookCatRepo.New(stg.DB)
+	bcHandler := bookCatHdl.New(log, bcRepo, &cfg.Security)
 	bcHandler.RegisterRoutes(mux, log)
 
-	aSrv := user.NewJwtAuthService(log, &cfg.Security)
-	uRepo := user.NewUserRepo(stg.DB)
-	uSrv := user.NewUserService(log, uRepo, aSrv, &cfg.Security)
-	uHandler := user.NewUserHandler(log, uSrv, &cfg.Security)
+	aSvc := authSvc.New(log, &cfg.Security)
+	uRepo := userRepo.New(stg.DB)
+	uSrv := userSvc.New(log, uRepo, aSvc, &cfg.Security)
+	uHandler := userHdl.New(log, uSrv, &cfg.Security)
 	uHandler.RegisterRoutes(mux, log)
 
 	return &http.Server{

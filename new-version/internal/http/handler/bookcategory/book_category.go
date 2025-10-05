@@ -5,14 +5,17 @@ import (
 	"log/slog"
 	"net/http"
 	"new-version/internal/config"
+	bookCatDto "new-version/internal/contract/bookcategory"
 	mw "new-version/internal/http-server/middleware"
-	"new-version/internal/modules/common"
-	help "new-version/pkg/http-helpers"
+	bookCatRepo "new-version/internal/repository/bookcategory"
+	"new-version/internal/validator/common"
+
+	"new-version/pkg/httphelpers"
 	"new-version/pkg/json"
 	"time"
 )
 
-type BookCatHandler interface {
+type Handler interface {
 	CreateCategory(w http.ResponseWriter, r *http.Request)
 	GetCategoryById(w http.ResponseWriter, r *http.Request)
 	DeleteCategoryById(w http.ResponseWriter, r *http.Request)
@@ -21,30 +24,40 @@ type BookCatHandler interface {
 	GetCategoryByTitle(w http.ResponseWriter, r *http.Request)
 }
 
-type BookCatHandlerImpl struct {
+type DefaultHandler struct {
 	log  *slog.Logger
-	repo BookCatRepo
+	repo bookCatRepo.Repository
 	cfg  *config.Security
 }
 
-func NewBookCatHandler(log *slog.Logger, repo BookCatRepo, cfg *config.Security) *BookCatHandlerImpl {
-	return &BookCatHandlerImpl{
+func New(
+	log *slog.Logger,
+	repo bookCatRepo.Repository,
+	cfg *config.Security,
+) *DefaultHandler {
+	return &DefaultHandler{
 		log:  log,
 		repo: repo,
 		cfg:  cfg,
 	}
 }
 
-func (b *BookCatHandlerImpl) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
+func (b *DefaultHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
 	logMw := mw.LoggerMiddleware(log)
 	authMw := mw.AuthMiddleware(b.cfg)
 
-	mux.Handle("POST /book-category/", authMw(logMw(http.HandlerFunc(b.CreateCategory)), common.USER_ACCESS_LEVEL))
-	mux.Handle("GET /book-category/{id}", authMw(logMw(http.HandlerFunc(b.GetCategoryById)), common.USER_ACCESS_LEVEL))
-	mux.Handle("PATCH /book-category/{id}", authMw(logMw(http.HandlerFunc(b.UpdateCategoryById)), common.USER_ACCESS_LEVEL))
-	mux.Handle("DELETE /book-category/{id}", authMw(logMw(http.HandlerFunc(b.DeleteCategoryById)), common.ADMIN_ACCESS_LEVEL))
-	mux.Handle("GET /book-category/title", logMw(http.HandlerFunc(b.GetCategoryByTitle)))
-	mux.Handle("GET /book-category/", logMw(http.HandlerFunc(b.ListCategories)))
+	mux.Handle("POST /book-category/",
+		authMw(logMw(http.HandlerFunc(b.CreateCategory)), httphelpers.USER_LVL))
+	mux.Handle("GET /book-category/{id}",
+		logMw(http.HandlerFunc(b.GetCategoryById)))
+	mux.Handle("PATCH /book-category/{id}",
+		authMw(logMw(http.HandlerFunc(b.UpdateCategoryById)), httphelpers.ADMIN_LVL))
+	mux.Handle("DELETE /book-category/{id}",
+		authMw(logMw(http.HandlerFunc(b.DeleteCategoryById)), httphelpers.ADMIN_LVL))
+	mux.Handle("GET /book-category/title",
+		logMw(http.HandlerFunc(b.GetCategoryByTitle)))
+	mux.Handle("GET /book-category/",
+		logMw(http.HandlerFunc(b.ListCategories)))
 }
 
 // CreateCategory adds a new book category to library.
@@ -54,13 +67,13 @@ func (b *BookCatHandlerImpl) RegisterRoutes(mux *http.ServeMux, log *slog.Logger
 // @Description create book category
 // @Accept json
 // @Produce json
-// @Param req body BookCatRequest true "CatRequest"
+// @Param req body bookcategory.Request true "CatRequest"
 // @Success 200 {object} httphelpers.Response
 // @Failure 400 {object} httphelpers.Response
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/ [post]
-func (b *BookCatHandlerImpl) CreateCategory(w http.ResponseWriter, r *http.Request) {
+func (b *DefaultHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.CreateCategory"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -68,19 +81,19 @@ func (b *BookCatHandlerImpl) CreateCategory(w http.ResponseWriter, r *http.Reque
 	defer cancel()
 	defer r.Body.Close()
 
-	var req BookCatRequest
+	var req bookCatDto.Request
 	if err := json.ReadRequestBody(r, &req); err != nil {
 
 		json.WriteError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if common.ValidateFieldNotEmpty(req.Title) {
-		json.WriteError(w, common.ReqFieldMessage(req.Title), http.StatusBadRequest)
+	if common.IsFieldNotEmpty(req.Title) {
+		json.WriteError(w, common.FieldIsRequired(req.Title), http.StatusBadRequest)
 		return
 	}
 
-	id, err := b.repo.Create(ctx, req.Title)
+	id, err := b.repo.Create(ctx, req)
 	if err != nil {
 		json.WriteError(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -102,7 +115,7 @@ func (b *BookCatHandlerImpl) CreateCategory(w http.ResponseWriter, r *http.Reque
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/{id} [get]
-func (b *BookCatHandlerImpl) GetCategoryById(w http.ResponseWriter, r *http.Request) {
+func (b *DefaultHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.GetCategoryById"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -110,7 +123,7 @@ func (b *BookCatHandlerImpl) GetCategoryById(w http.ResponseWriter, r *http.Requ
 	defer cancel()
 	defer r.Body.Close()
 
-	id, err := help.ParseIdFromPath(r)
+	id, err := httphelpers.ParseIntIdFromPath(r)
 
 	if err != nil {
 		// id must be int
@@ -140,7 +153,7 @@ func (b *BookCatHandlerImpl) GetCategoryById(w http.ResponseWriter, r *http.Requ
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/title [get]
-func (b *BookCatHandlerImpl) GetCategoryByTitle(w http.ResponseWriter, r *http.Request) {
+func (b *DefaultHandler) GetCategoryByTitle(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.GetCategoryByTitle"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -150,8 +163,8 @@ func (b *BookCatHandlerImpl) GetCategoryByTitle(w http.ResponseWriter, r *http.R
 
 	title := r.URL.Query().Get("title")
 
-	if common.ValidateFieldNotEmpty(title) {
-		json.WriteError(w, common.ReqFieldMessage(title), http.StatusBadRequest)
+	if common.IsFieldNotEmpty(title) {
+		json.WriteError(w, common.FieldIsRequired(title), http.StatusBadRequest)
 		return
 	}
 
@@ -171,14 +184,14 @@ func (b *BookCatHandlerImpl) GetCategoryByTitle(w http.ResponseWriter, r *http.R
 // @Description update book category by id
 // @Accept json
 // @Produce json
-// @Param inpur body BookCatRequest true "CatRequest"
+// @Param input body bookcategory.Request true "CatRequest"
 // @Param id path int true "Category Id"
 // @Success 200 {object} httphelpers.Response
 // @Failure 400 {object} httphelpers.Response
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/{id} [patch]
-func (b *BookCatHandlerImpl) UpdateCategoryById(w http.ResponseWriter, r *http.Request) {
+func (b *DefaultHandler) UpdateCategoryById(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.UpdateCategoryById"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -186,9 +199,9 @@ func (b *BookCatHandlerImpl) UpdateCategoryById(w http.ResponseWriter, r *http.R
 	defer cancel()
 	defer r.Body.Close()
 
-	id, err := help.ParseIdFromPath(r)
+	id, err := httphelpers.ParseIntIdFromPath(r)
 
-	var req BookCatRequest
+	var req bookCatDto.Request
 
 	if err := json.ReadRequestBody(r, &req); err != nil {
 		json.WriteError(w, err.Error(), http.StatusBadRequest)
@@ -201,7 +214,7 @@ func (b *BookCatHandlerImpl) UpdateCategoryById(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = b.repo.UpdateById(ctx, req.Title, id)
+	err = b.repo.UpdateById(ctx, req, id)
 	if err != nil {
 		json.WriteError(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -223,7 +236,7 @@ func (b *BookCatHandlerImpl) UpdateCategoryById(w http.ResponseWriter, r *http.R
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/{id} [delete]
-func (b *BookCatHandlerImpl) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
+func (b *DefaultHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.DeleteCategoryById"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
@@ -231,7 +244,7 @@ func (b *BookCatHandlerImpl) DeleteCategoryById(w http.ResponseWriter, r *http.R
 	defer cancel()
 	defer r.Body.Close()
 
-	id, err := help.ParseIdFromPath(r)
+	id, err := httphelpers.ParseIntIdFromPath(r)
 
 	if err != nil {
 		// id must be int
@@ -260,7 +273,7 @@ func (b *BookCatHandlerImpl) DeleteCategoryById(w http.ResponseWriter, r *http.R
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /book-category/ [get]
-func (b *BookCatHandlerImpl) ListCategories(w http.ResponseWriter, r *http.Request) {
+func (b *DefaultHandler) ListCategories(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.bookcategory.handler.ListCategories"
 
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)

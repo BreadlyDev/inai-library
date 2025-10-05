@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	help "new-version/pkg/http-helpers"
+	help "new-version/pkg/httphelpers"
 )
 
 func ReadRequestBody(r *http.Request, result any) error {

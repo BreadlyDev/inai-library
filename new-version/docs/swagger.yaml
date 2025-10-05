@@ -1,5 +1,5 @@
 definitions:
-  bookcategory.BookCatRequest:
+  bookcategory.Request:
     properties:
       title:
         type: string
@@ -12,18 +12,11 @@ definitions:
       status:
         type: integer
     type: object
-  user.UserCreate:
+  user.Request:
     properties:
       email:
         type: string
-      pass:
-        type: string
-    type: object
-  user.UserLogin:
-    properties:
-      email:
-        type: string
-      pass:
+      pass_hash:
         type: string
     type: object
 host: localhost:8080
@@ -72,7 +65,7 @@ paths:
         name: req
         required: true
         schema:
-          $ref: '#/definitions/bookcategory.BookCatRequest'
+          $ref: '#/definitions/bookcategory.Request'
       produces:
       - application/json
       responses:
@@ -170,10 +163,10 @@ paths:
       parameters:
       - description: CatRequest
         in: body
-        name: inpur
+        name: input
         required: true
         schema:
-          $ref: '#/definitions/bookcategory.BookCatRequest'
+          $ref: '#/definitions/bookcategory.Request'
       - description: Category Id
         in: path
         name: id
@@ -247,7 +240,7 @@ paths:
         name: req
         required: true
         schema:
-          $ref: '#/definitions/user.UserLogin'
+          $ref: '#/definitions/user.Request'
       produces:
       - application/json
       responses:
@@ -308,7 +301,7 @@ paths:
         name: req
         required: true
         schema:
-          $ref: '#/definitions/user.UserCreate'
+          $ref: '#/definitions/user.Request'
       produces:
       - application/json
       responses:

@@ -76,7 +76,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bookcategory.BookCatRequest"
+                            "$ref": "#/definitions/bookcategory.Request"
                         }
                     }
                 ],
@@ -274,11 +274,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "CatRequest",
-                        "name": "inpur",
+                        "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bookcategory.BookCatRequest"
+                            "$ref": "#/definitions/bookcategory.Request"
                         }
                     },
                     {
@@ -338,7 +338,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UserLogin"
+                            "$ref": "#/definitions/user.Request"
                         }
                     }
                 ],
@@ -430,7 +430,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UserCreate"
+                            "$ref": "#/definitions/user.Request"
                         }
                     }
                 ],
@@ -464,7 +464,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "bookcategory.BookCatRequest": {
+        "bookcategory.Request": {
             "type": "object",
             "properties": {
                 "title": {
@@ -484,24 +484,13 @@ const docTemplate = `{
                 }
             }
         },
-        "user.UserCreate": {
+        "user.Request": {
             "type": "object",
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "pass": {
-                    "type": "string"
-                }
-            }
-        },
-        "user.UserLogin": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "pass": {
+                "pass_hash": {
                     "type": "string"
                 }
             }

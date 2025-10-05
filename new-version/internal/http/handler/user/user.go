@@ -6,37 +6,45 @@ import (
 	"log/slog"
 	"net/http"
 	"new-version/internal/config"
+	"new-version/internal/contract/user"
+	userDto "new-version/internal/contract/user"
 	mw "new-version/internal/http-server/middleware"
-	"new-version/internal/modules/common"
+	"new-version/pkg/httphelpers"
+	userSvc "new-version/internal/service/user"
 	"new-version/pkg/json"
 	"time"
 )
 
-type UserHandler interface {
+type Handler interface {
 	RegisterUser(w http.ResponseWriter, r *http.Request)
 	LoginUser(w http.ResponseWriter, r *http.Request)
 	LogoutUser(w http.ResponseWriter, r *http.Request)
 }
 
-type UserHandlerImpl struct {
+type DefaultHandler struct {
 	log *slog.Logger
-	srv UserService
+	svc userSvc.Service
 	cfg *config.Security
 }
 
-func (u *UserHandlerImpl) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
+func (u *DefaultHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
 	logMw := mw.LoggerMiddleware(log)
 	authMw := mw.AuthMiddleware(u.cfg)
 
 	mux.Handle("POST /user/register", logMw(http.HandlerFunc(u.RegisterUser)))
 	mux.Handle("POST /user/login", logMw(http.HandlerFunc(u.LoginUser)))
-	mux.Handle("POST /user/logout", authMw(logMw(http.HandlerFunc(u.LogoutUser)), common.USER_ACCESS_LEVEL))
+	mux.Handle("POST /user/logout",
+		authMw(logMw(http.HandlerFunc(u.LogoutUser)), httphelpers.USER_LVL))
 }
 
-func NewUserHandler(log *slog.Logger, srv UserService, cfg *config.Security) *UserHandlerImpl {
-	return &UserHandlerImpl{
+func New(
+	log *slog.Logger,
+	srv userSvc.Service,
+	cfg *config.Security,
+) *DefaultHandler {
+	return &DefaultHandler{
 		log: log,
-		srv: srv,
+		svc: srv,
 		cfg: cfg,
 	}
 }
@@ -48,33 +56,33 @@ func NewUserHandler(log *slog.Logger, srv UserService, cfg *config.Security) *Us
 // @Description register a new user
 // @Accept json
 // @Produce json
-// @Param req body UserCreate true "UserCreate"
+// @Param req body user.Request true "UserCreate"
 // @Success 201 {object} httphelpers.Response
 // @Failure 400 {object} httphelpers.Response
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /user/register [post]
-func (u *UserHandlerImpl) RegisterUser(w http.ResponseWriter, r *http.Request) {
+func (u *DefaultHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.user.handler.Register"
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*3))
 	defer cancel()
 	defer r.Body.Close()
 
-	var req UserCreate
+	var req userDto.Request
 
 	if err := json.ReadRequestBody(r, &req); err != nil {
 		json.WriteError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err := u.srv.Register(ctx, req)
+	err := u.svc.Register(ctx, req)
 	if err != nil {
 		json.WriteError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.WriteSuccess(w, "user has been registered", nil , http.StatusCreated)
+	json.WriteSuccess(w, "user has been registered", nil, http.StatusCreated)
 }
 
 // Login allows a user to sign in and get permissions.
@@ -84,27 +92,27 @@ func (u *UserHandlerImpl) RegisterUser(w http.ResponseWriter, r *http.Request) {
 // @Description login user
 // @Accept json
 // @Produce json
-// @Param req body UserLogin true "UserLogin"
+// @Param req body user.Request true "UserLogin"
 // @Success 200 {object} httphelpers.Response
 // @Failure 400 {object} httphelpers.Response
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /user/login [post]
-func (u *UserHandlerImpl) LoginUser(w http.ResponseWriter, r *http.Request) {
+func (u *DefaultHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.user.handler.Login"
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*3))
 	defer cancel()
 	defer r.Body.Close()
 
-	var req UserLogin
+	var req user.Request
 
 	if err := json.ReadRequestBody(r, &req); err != nil {
 		json.WriteError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	token, err := u.srv.Login(ctx, req)
+	token, err := u.svc.Login(ctx, req)
 	if err != nil {
 		json.WriteError(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -136,7 +144,7 @@ func (u *UserHandlerImpl) LoginUser(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} httphelpers.Response
 // @Failure default {object} httphelpers.Response
 // @Router /user/logout [post]
-func (u *UserHandlerImpl) LogoutUser(w http.ResponseWriter, r *http.Request) {
+func (u *DefaultHandler) LogoutUser(w http.ResponseWriter, r *http.Request) {
 	const op = "modules.user.handler.Logout"
 
 	defer r.Body.Close()

@@ -5,6 +5,13 @@ import (
 	"strconv"
 )
 
+type AccessLevel int
+
+const (
+	USER_LVL  AccessLevel = 50
+	ADMIN_LVL AccessLevel = 100
+)
+
 type Response struct {
 	Message string `json:"message"`
 	Data    any    `json:"data,omitempty"`
@@ -27,7 +34,7 @@ func NewErrResponse(message string, status int) Response {
 	}
 }
 
-func ParseIdFromPath(r *http.Request) (int, error) {
+func ParseIntIdFromPath(r *http.Request) (int, error) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 
 	if err != nil {
