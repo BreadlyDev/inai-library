@@ -6,12 +6,15 @@ import (
 	"net/http"
 	"new-version/internal/config"
 	bookCatDto "new-version/internal/contract/bookcategory"
-	authMwr "new-version/internal/http/middleware/auth"
-	logMwr "new-version/internal/http/middleware/logger"
+
+	mwAuth "new-version/internal/http/middleware/auth"
+	mwChain "new-version/internal/http/middleware/chain"
+	mwLog "new-version/internal/http/middleware/logger"
+
 	bookCatRepo "new-version/internal/repository/bookcategory"
 	"new-version/internal/validator/common"
 
-	"new-version/pkg/httphelpers"
+	hp "new-version/pkg/httphelpers"
 	"new-version/pkg/json"
 	"time"
 )
@@ -43,22 +46,17 @@ func New(
 	}
 }
 
-func (b *DefaultHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
-	logMw := logMwr.LoggerMiddleware(log)
-	authMw := authMwr.AuthMiddleware(b.cfg)
+func (b *DefaultHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger, cfg *config.Security) {
+	ctx := context.Context(context.Background())
+	ctx = context.WithValue(ctx, "logger", log)
+	ctx = context.WithValue(ctx, "jwt_secret", cfg.JwtSecret)
 
-	mux.Handle("POST /book-category/",
-		authMw(logMw(http.HandlerFunc(b.CreateCategory)), httphelpers.USER_LVL))
-	mux.Handle("GET /book-category/{id}",
-		logMw(http.HandlerFunc(b.GetCategoryById)))
-	mux.Handle("PATCH /book-category/{id}",
-		authMw(logMw(http.HandlerFunc(b.UpdateCategoryById)), httphelpers.ADMIN_LVL))
-	mux.Handle("DELETE /book-category/{id}",
-		authMw(logMw(http.HandlerFunc(b.DeleteCategoryById)), httphelpers.ADMIN_LVL))
-	mux.Handle("GET /book-category/title",
-		logMw(http.HandlerFunc(b.GetCategoryByTitle)))
-	mux.Handle("GET /book-category/",
-		logMw(http.HandlerFunc(b.ListCategories)))
+	mux.Handle("POST /book-category/", mwChain.Chain(ctx, b.CreateCategory, mwLog.Logger, mwAuth.Auth(hp.USER_LVL)))
+	mux.Handle("GET /book-category/{id}", mwChain.Chain(ctx, b.GetCategoryById, mwLog.Logger))
+	mux.Handle("PATCH /book-category/{id}", mwChain.Chain(ctx, b.UpdateCategoryById, mwLog.Logger, mwAuth.Auth(hp.ADMIN_LVL)))
+	mux.Handle("DELETE /book-category/{id}", mwChain.Chain(ctx, b.DeleteCategoryById, mwLog.Logger, mwAuth.Auth(hp.ADMIN_LVL)))
+	mux.Handle("GET /book-category/title", mwChain.Chain(ctx, b.GetCategoryByTitle, mwLog.Logger))
+	mux.Handle("GET /book-category/", mwChain.Chain(ctx, b.ListCategories, mwLog.Logger))
 }
 
 // CreateCategory adds a new book category to library.
@@ -124,7 +122,7 @@ func (b *DefaultHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 	defer cancel()
 	defer r.Body.Close()
 
-	id, err := httphelpers.ParseIntIdFromPath(r)
+	id, err := hp.ParseIntIdFromPath(r)
 
 	if err != nil {
 		// id must be int
@@ -200,7 +198,7 @@ func (b *DefaultHandler) UpdateCategoryById(w http.ResponseWriter, r *http.Reque
 	defer cancel()
 	defer r.Body.Close()
 
-	id, err := httphelpers.ParseIntIdFromPath(r)
+	id, err := hp.ParseIntIdFromPath(r)
 
 	var req bookCatDto.Request
 
@@ -245,7 +243,7 @@ func (b *DefaultHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Reque
 	defer cancel()
 	defer r.Body.Close()
 
-	id, err := httphelpers.ParseIntIdFromPath(r)
+	id, err := hp.ParseIntIdFromPath(r)
 
 	if err != nil {
 		// id must be int

@@ -3,7 +3,6 @@ package user
 import (
 	"fmt"
 	"net/mail"
-	"new-version/internal/config"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -72,14 +71,14 @@ func ValidatePassword(pass string, passMinLen int) string {
 	return ""
 }
 
-func ValidateJwt(cfg *config.Security, signedToken string) (jwt.MapClaims, error) {
+func ValidateJwt(jwtSecret string, signedToken string) (jwt.MapClaims, error) {
 	const op = "modules.user.service.ValidateJwt"
 
 	parsedToken, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("%s: unexpected signing method", op)
 		}
-		return []byte(cfg.JwtSecret), nil
+		return []byte(jwtSecret), nil
 	})
 
 	if err != nil {

@@ -34,13 +34,13 @@ func New(log *slog.Logger, cfg *config.Config, stg *postgres.Storage) *http.Serv
 
 	bcRepo := bookCatRepo.New(stg.DB())
 	bcHandler := bookCatHdl.New(log, bcRepo, &cfg.Security)
-	bcHandler.RegisterRoutes(mux, log)
+	bcHandler.RegisterRoutes(mux, log, &cfg.Security)
 
 	aSvc := authSvc.New(log, &cfg.Security)
 	uRepo := userRepo.New(stg.DB())
 	uSrv := userSvc.New(log, uRepo, aSvc, &cfg.Security)
 	uHandler := userHdl.New(log, uSrv, &cfg.Security)
-	uHandler.RegisterRoutes(mux, log)
+	uHandler.RegisterRoutes(mux, log, &cfg.Security)
 
 	return &http.Server{
 		Addr:         cfg.Address,

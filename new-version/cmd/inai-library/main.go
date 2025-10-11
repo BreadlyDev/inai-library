@@ -57,9 +57,7 @@ func main() {
 
 	log.Info("server stopped")
 
-	// TODO: Refactor project
 	// TODO: Add other entities
 	// TODO: Add business logic
-	// TODO: Move to Postgres
 	// TODO: Add dockerfile & deploy on ...
 }

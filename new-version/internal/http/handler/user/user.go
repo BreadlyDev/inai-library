@@ -8,11 +8,12 @@ import (
 	"new-version/internal/config"
 	"new-version/internal/contract/user"
 	userDto "new-version/internal/contract/user"
-	authMwr "new-version/internal/http/middleware/auth"
-	logMwr "new-version/internal/http/middleware/logger"
+	mwAuth "new-version/internal/http/middleware/auth"
+	mwChain "new-version/internal/http/middleware/chain"
+	mwLog "new-version/internal/http/middleware/logger"
 
 	userSvc "new-version/internal/service/user"
-	"new-version/pkg/httphelpers"
+	hp "new-version/pkg/httphelpers"
 	"new-version/pkg/json"
 	"time"
 )
@@ -29,14 +30,14 @@ type DefaultHandler struct {
 	cfg *config.Security
 }
 
-func (u *DefaultHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger) {
-	logMw := logMwr.LoggerMiddleware(log)
-	authMw := authMwr.AuthMiddleware(u.cfg)
+func (u *DefaultHandler) RegisterRoutes(mux *http.ServeMux, log *slog.Logger, cfg *config.Security) {
+	ctx := context.Context(context.Background())
+	ctx = context.WithValue(ctx, "logger", log)
+	ctx = context.WithValue(ctx, "jwt_secret", cfg.JwtSecret)
 
-	mux.Handle("POST /user/register", logMw(http.HandlerFunc(u.RegisterUser)))
-	mux.Handle("POST /user/login", logMw(http.HandlerFunc(u.LoginUser)))
-	mux.Handle("POST /user/logout",
-		authMw(logMw(http.HandlerFunc(u.LogoutUser)), httphelpers.USER_LVL))
+	mux.Handle("POST /user/register", mwChain.Chain(ctx, u.RegisterUser, mwLog.Logger))
+	mux.Handle("POST /user/login", mwChain.Chain(ctx, u.LoginUser, mwLog.Logger))
+	mux.Handle("POST /user/logout", mwChain.Chain(ctx, u.LoginUser, mwLog.Logger, mwAuth.Auth(hp.USER_LVL)))
 }
 
 func New(

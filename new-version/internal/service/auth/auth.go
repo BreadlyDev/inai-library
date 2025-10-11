@@ -55,9 +55,9 @@ func (j *JwtService) GenerateJwtToken(userInfo user.Model) (string, error) {
 	const op = "service.auth.GenJwtToken"
 
 	claims := jwt.MapClaims{
-		"sub":          userInfo.Email,
-		"access_level": userInfo.AccessLevel,
-		"exp":          time.Now().Add(j.cfg.AccessTokenExpire).Unix(),
+		"sub":        userInfo.Email,
+		"user_level": userInfo.AccessLevel,
+		"exp":        time.Now().Add(j.cfg.AccessTokenExpire).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
