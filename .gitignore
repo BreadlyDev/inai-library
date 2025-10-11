@@ -12,3 +12,4 @@ books/migrations
 new-version/config
 new-version/storage
 new-version/migrations
+new-version/database
